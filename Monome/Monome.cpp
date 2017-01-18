@@ -1,6 +1,6 @@
 //
 //  Monome.cpp
-//  LED Metronome
+//  AI:MO
 //
 //  Created by Luke Saxton on 14/01/2017.
 //

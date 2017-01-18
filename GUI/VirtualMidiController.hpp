@@ -1,6 +1,6 @@
 //
 //  VirtualMidiController.hpp
-//  AIAO
+//  AI:MO
 //
 //  Created by Luke Saxton on 17/01/2017.
 //

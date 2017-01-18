@@ -1,2 +1,2 @@
-# AIAO
-Anything In / Awesome Out
+# AI:MO
+Anything In : Music Out
