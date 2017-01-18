@@ -10,7 +10,8 @@
 #define MAINCOMPONENT_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
-
+#include "VirtualMidiController.hpp"
+#include "MonomeServer.h"
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -26,6 +27,8 @@ public:
 
         // specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
+        
+        addAndMakeVisible(controllerOne);
     }
 
     ~MainContentComponent()
@@ -76,9 +79,7 @@ public:
 
     void resized() override
     {
-        // This is called when the MainContentComponent is resized.
-        // If you add any child components, this is where you should
-        // update their positions.
+        controllerOne.setBounds(10, 10, getWidth()-20, getHeight()-20);
     }
 
 
@@ -86,7 +87,8 @@ private:
     //==============================================================================
 
     // Your private member variables go here...
-
+    VirtualMidiController controllerOne;
+    
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

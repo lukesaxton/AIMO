@@ -10,14 +10,21 @@
 #define VirtualMidiController_hpp
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "VCMModules.hpp"
+
+//Main functionality class of app, takes various input in the form of addressed midi/OSC data
 
 class VirtualMidiController : public Component
 {
 public:
+    
     VirtualMidiController();
     ~VirtualMidiController();
-private:
     
+    void paint(Graphics& g) override;
+    void resized() override;
+private:
+    ScopedPointer<GridModule> grid = nullptr;
 };
 
 
