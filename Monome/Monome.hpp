@@ -12,6 +12,7 @@
 
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "AIMOInput.hpp"
 
 namespace NumberMasks{
     static const int oneL[8] {0, 0, 0, 2, 2, 2, 2, 2};
@@ -88,7 +89,8 @@ namespace LetterMasks{
 
 class Monome : public OSCReceiver::Listener<>,
                public Timer,
-               public HighResolutionTimer
+               public HighResolutionTimer,
+               public AIMOInput
 {
     
     

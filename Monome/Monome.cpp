@@ -15,7 +15,10 @@ Monome::Monome()
     
     //numberMasks.add(NumberMasks::oneL);
     
-    
+    for (int i = 0; i < 64; ++i)
+    {
+        setKeyMapping("/controllerOne/grid/key " + String(i+40), i);
+    }
     
 }
 
@@ -78,7 +81,6 @@ void Monome::oscMessageReceived (const OSCMessage& message)
     if (message.getAddressPattern().toString() == (monomeData.prefix + "/grid/key"))
     {
 
-        
         //stopIdle();
         OSCArgument* cur = message.begin();
         
@@ -98,58 +100,60 @@ void Monome::oscMessageReceived (const OSCMessage& message)
             grid[x][y].s = s;
             setLight(x, y, s);
             
-            if (numberMode && keysPressed == 0)
-            {
-                displayNumber(((y*8)+x)+1);
-            }
             
-            if (s)
-            {
-                keysPressed++;
-            }
-            else{
-                keysPressed--;
-                
-            }
             
-            //DBG("Keys Pressed: " + String(keysPressed));
-            
-           
-            
-            if (keysPressed == 2) {
-                if (grid[0][0].s && grid[1][0].s)
-                {
-                    if (Timer::isTimerRunning())
-                    {
-                        stopIdle();
-                    }
-                    else
-                    {
-                        Timer::startTimer(100);
-                    }
-                }
-                else if (grid[6][7].s && grid[7][7].s) //kill all lights
-                {
-                    Timer::stopTimer();
-                    lightsOff();
-                }
-                else if (grid[7][6].s && grid[7][7].s) //show all Lights
-                {
-                    Timer::stopTimer();
-                    lightsOn();
-                }
-                else if (grid[7][0].s && grid[7][1].s) //enable number mode
-                {
-                    numberMode = true;
-                }
-                else if (grid[7][0].s && grid[6][0].s) //disable number mode
-                {
-                    numberMode = false;
-                    lightsOff();
-                }
-            }
+//            if (numberMode && keysPressed == 0)
+//            {
+//                displayNumber(((y*8)+x)+1);
+//            }
+//            
+//            if (s)
+//            {
+//                keysPressed++;
+//            }
+//            else{
+//                keysPressed--;
+//                
+//            }
+//            
+//            //DBG("Keys Pressed: " + String(keysPressed));
+//            
+//           
+//            
+//            if (keysPressed == 2) {
+//                if (grid[0][0].s && grid[1][0].s)
+//                {
+//                    if (Timer::isTimerRunning())
+//                    {
+//                        stopIdle();
+//                    }
+//                    else
+//                    {
+//                        Timer::startTimer(100);
+//                    }
+//                }
+//                else if (grid[6][7].s && grid[7][7].s) //kill all lights
+//                {
+//                    Timer::stopTimer();
+//                    lightsOff();
+//                }
+//                else if (grid[7][6].s && grid[7][7].s) //show all Lights
+//                {
+//                    Timer::stopTimer();
+//                    lightsOn();
+//                }
+//                else if (grid[7][0].s && grid[7][1].s) //enable number mode
+//                {
+//                    numberMode = true;
+//                }
+//                else if (grid[7][0].s && grid[6][0].s) //disable number mode
+//                {
+//                    numberMode = false;
+//                    lightsOff();
+//                }
+//            }
         }
-        
+
     }
 }
 
