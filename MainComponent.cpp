@@ -21,7 +21,7 @@ class MainContentComponent   : public AudioAppComponent
 {
 public:
     //==============================================================================
-    MainContentComponent()
+    MainContentComponent() : controllerOne("controllerOne")
     {
         setSize (800, 600);
 

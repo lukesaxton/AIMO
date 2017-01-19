@@ -7,17 +7,30 @@
 //
 
 #include "VirtualMidiController.hpp"
+#include "AIMORouter.hpp"
 
-VirtualMidiController::VirtualMidiController()
+VirtualMidiController::VirtualMidiController(String ID)
 {
     grid = new GridModule(64);
     addAndMakeVisible(grid);
+    
+    AIMORouter::Instance()->addDestination(this);
 }
 
 VirtualMidiController::~VirtualMidiController()
 {
     
 }
+
+void VirtualMidiController::route(const String message)
+{
+    if (message.contains("grid"))
+    {
+        int padNum = message.fromFirstOccurrenceOf(" ", false, true).getIntValue();
+        
+    }
+}
+
 
 void VirtualMidiController::paint(Graphics& g)
 {
@@ -43,4 +56,9 @@ void VirtualMidiController::resized()
         
         grid->setCentrePosition(x/2.0, y/2.0);
     }
+}
+
+const String VirtualMidiController::getID()
+{
+    return ID;
 }

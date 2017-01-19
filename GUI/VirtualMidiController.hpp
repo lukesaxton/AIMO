@@ -18,13 +18,18 @@ class VirtualMidiController : public Component
 {
 public:
     
-    VirtualMidiController();
+    VirtualMidiController(String ID);
     ~VirtualMidiController();
+    
+    void route(const String message);
     
     void paint(Graphics& g) override;
     void resized() override;
+    
+    const String getID();
 private:
     ScopedPointer<GridModule> grid = nullptr;
+    String ID;
 };
 
 
