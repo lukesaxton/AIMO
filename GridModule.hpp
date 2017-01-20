@@ -10,7 +10,7 @@
 #define GridModule_hpp
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "VCMModules.hpp"
+#include "VMCModules.hpp"
 
 class GridModule : public VMCModule,
 public Component
@@ -46,7 +46,6 @@ public:
         }
     private:
         int buttonState = 0;
-        String outAddress = "";
     };
     
     class ConfigComponent : public Component{
@@ -73,7 +72,7 @@ public:
     
     void setMapIn (const String newMapIn) override;
     void setMapOut (const String newMapOut) override;
-    void route(const String message) override;
+    bool routeMidi (const String address, const MidiMessage message) override;
     
     const int getGridSize();
     

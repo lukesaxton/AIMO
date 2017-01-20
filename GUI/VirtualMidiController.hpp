@@ -21,7 +21,7 @@ public:
     VirtualMidiController(String ID);
     ~VirtualMidiController();
     
-    void route(const String message);
+    bool routeMidi (const String address, const MidiMessage message);
     
     void paint(Graphics& g) override;
     void resized() override;
@@ -29,6 +29,8 @@ public:
     const String getID();
 private:
     ScopedPointer<GridModule> grid = nullptr;
+    ScopedPointer<KeyboardModule> keyboard;
+    
     String ID;
 };
 

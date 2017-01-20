@@ -20,7 +20,9 @@ public:
     static AIMORouter* Instance();
     ~AIMORouter();
     
-    bool route(const String message);
+    //bool route(const String message);
+    
+    bool routeMidi (const String address, const MidiMessage message);
     
     void addDestination(VirtualMidiController* destination);
 
@@ -30,6 +32,7 @@ private:
     static AIMORouter* pInstance;
     
     Array<VirtualMidiController*> registeredDestinations;
+    
 };
 
 #endif /* AIMORouter_hpp */

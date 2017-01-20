@@ -1,5 +1,5 @@
 //
-//  VCMModules.hpp
+//  VMCModules.hpp
 //  AIMO
 //
 //  Created by Luke Saxton on 18/01/2017.
@@ -18,7 +18,8 @@ public:
     virtual ~VMCModule() {};
     virtual void setMapIn (const String newMapIn) = 0;
     virtual void setMapOut (const String newMapOut) = 0;
-    virtual void route(const String message) = 0;
+    virtual bool routeMidi (const String address, const MidiMessage message) = 0;
+
 private:
 };
 
@@ -50,7 +51,8 @@ private:
 
 //standard
 class KeyboardModule : public VMCModule,
-                       public Component
+                       public Component,
+                       public MidiKeyboardStateListener
 {
 public:
     KeyboardModule();
@@ -58,11 +60,21 @@ public:
     
     void setMapIn (const String newMapIn) override;
     void setMapOut (const String newMapOut) override;
-    void route(const String message) override;
+    bool routeMidi (const String address, const MidiMessage message) override;
+
     
     void paint(Graphics& g) override;
     void resized() override;
+    
+    // Keyboard State Listener
+    void handleNoteOn (MidiKeyboardState *source, int midiChannel, int midiNoteNumber, float velocity) override;
+    void handleNoteOff (MidiKeyboardState *source, int midiChannel, int midiNoteNumber, float velocity) override;
+    
 private:
+    ScopedPointer<MidiKeyboardComponent> keyComponent;
+    MidiKeyboardState keyboardState;
+    
+    String outMapping = "";
 };
 
 
@@ -76,7 +88,7 @@ public:
     
     void setMapIn (const String newMapIn) override;
     void setMapOut (const String newMapOut) override;
-    void route(const String message) override;
+    bool routeMidi (const String address, const MidiMessage message) override;
     
     void paint(Graphics& g) override;
     void resized() override;
@@ -84,4 +96,4 @@ private:
 };
 
 
-#endif /* VCMModules_hpp */
+#endif /* VMCModules_hpp */

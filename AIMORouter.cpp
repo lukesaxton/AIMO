@@ -36,12 +36,13 @@ AIMORouter* AIMORouter::Instance()
 
 
 
-bool AIMORouter::route(const String message)
+bool AIMORouter::routeMidi (const String address, const MidiMessage message)
 {
     for (int i = 0; i < registeredDestinations.size(); ++i)
     {
-        if (message.contains(registeredDestinations[i]->getID()))
+        if (address.contains(registeredDestinations[i]->getID()))
         {
+            
             registeredDestinations[i]->route(message);
             return true;
         }

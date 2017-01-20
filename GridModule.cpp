@@ -37,20 +37,24 @@ void GridModule::setMapOut (const String newMapOut)
 {
     
 }
-void GridModule::route(const String message)
+bool GridModule::routeMidi (const String address, const MidiMessage message)
+
 {
-    if (message.contains("key"))
+    if (address.contains("key"))
     {
-        String pad = message.fromLastOccurrenceOf("/", false, false);
-        
-        
-        String data = message.substring(message.indexOfChar(' '));
-        
+       
+        return true;
         //DBG(<#textToWrite#>)
         //        if (pad > -1 && pad < 128)
         //        {
         //            buttons[pad]->setButtonState(pad->);
         //        }
+    }
+    else
+    {
+        jassertfalse;
+        return false;
+        
     }
 }
 
@@ -116,9 +120,9 @@ void GridModule::mouseDown(const MouseEvent& event)
 {
     for (int i = 0; i < buttons.size(); ++i)
     {
-        if (event.getMouseDownPosition()) {
-            <#statements#>
-        }
+//        if (event.getMouseDownPosition()) {
+//            <#statements#>
+//        }
     }
 }
 
