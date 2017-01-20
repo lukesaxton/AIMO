@@ -14,6 +14,9 @@ VirtualMidiController::VirtualMidiController(String ID)
     grid = new GridModule(64);
     addAndMakeVisible(grid);
     
+    keyboard = new KeyboardModule();
+    addAndMakeVisible(keyboard);
+    
     AIMORouter::Instance()->addDestination(this);
 }
 
@@ -22,13 +25,16 @@ VirtualMidiController::~VirtualMidiController()
     
 }
 
-void VirtualMidiController::route(const String message)
+bool VirtualMidiController::routeMidi (const String address, const MidiMessage message)
+
 {
-    if (message.contains("grid"))
+    if (address.contains("grid"))
     {
-        int padNum = message.fromFirstOccurrenceOf(" ", false, true).getIntValue();
-        
+        grid->routeMidi(address.fromFirstOccurrenceOf("grid", false, true), message);
+        return true;
     }
+    
+    return false;
 }
 
 
@@ -40,7 +46,7 @@ void VirtualMidiController::paint(Graphics& g)
 void VirtualMidiController::resized()
 {
     float x = getWidth();
-    float y = getHeight();
+    float y = getHeight()/2.0;
     
     if (grid)
     {
@@ -56,6 +62,8 @@ void VirtualMidiController::resized()
         
         grid->setCentrePosition(x/2.0, y/2.0);
     }
+    
+    keyboard->setBounds(0, y, x, y);
 }
 
 const String VirtualMidiController::getID()

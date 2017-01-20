@@ -1,0 +1,8 @@
+AI:MO internal API
+
+
+[VMC]/[Module]/[type of control]/[Control Number] [data]
+
+e.g.
+
+controllerOne/grid/key/ number
