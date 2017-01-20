@@ -10,7 +10,7 @@
 #define VirtualMidiController_hpp
 
 #include "../JuceLibraryCode/JuceHeader.h"
-#include "VCMModules.hpp"
+#include "GridModule.hpp"
 
 //Main functionality class of app, takes various input in the form of addressed midi/OSC data
 
