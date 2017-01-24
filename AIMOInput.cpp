@@ -21,7 +21,7 @@ AIMOInput::~AIMOInput()
 
 String AIMOInput::getKeyMapping(const int forKey)
 {
-    if (forKey > 0 && forKey < 128)
+    if (forKey >= 0 && forKey < 128)
     {
         return keyMappings[forKey];
     }
@@ -34,7 +34,7 @@ String AIMOInput::getKeyMapping(const int forKey)
 }
 String AIMOInput::getControlMapping(const int forControl)
 {
-    if (forControl > 0 && forControl < 128)
+    if (forControl >= 0 && forControl < 128)
     {
         return keyMappings[forControl];
     }
@@ -48,7 +48,7 @@ String AIMOInput::getControlMapping(const int forControl)
 
 String AIMOInput::getProgramMapping(const int forProgram)
 {
-    if (forProgram > 0 && forProgram < 128)
+    if (forProgram >= 0 && forProgram < 128)
     {
         return keyMappings[forProgram];
     }
@@ -62,7 +62,7 @@ String AIMOInput::getProgramMapping(const int forProgram)
 
 void AIMOInput::setKeyMapping(const String newMapping, const int forKey)
 {
-    if (forKey > 0 && forKey < 128)
+    if (forKey >= 0 && forKey < 128)
     {
         keyMappings[forKey] = newMapping;
     }
@@ -70,7 +70,7 @@ void AIMOInput::setKeyMapping(const String newMapping, const int forKey)
 
 void AIMOInput::setControlMapping(const String newMapping, const int forControl)
 {
-    if (forControl > 0 && forControl < 128)
+    if (forControl >= 0 && forControl < 128)
     {
         controlMappings[forControl] = newMapping;
     }
@@ -79,7 +79,7 @@ void AIMOInput::setControlMapping(const String newMapping, const int forControl)
 
 void AIMOInput::setProgramyMapping(const String newMapping, const int forProgram)
 {
-    if (forProgram > 0 && forProgram < 128)
+    if (forProgram >= 0 && forProgram < 128)
     {
         programMappings[forProgram] = newMapping;
     }
