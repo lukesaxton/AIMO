@@ -29,6 +29,8 @@ public:
         setAudioChannels (2, 2);
         
         addAndMakeVisible(controllerOne);
+        
+        
     }
 
     ~MainContentComponent()
@@ -88,7 +90,7 @@ private:
 
     // Your private member variables go here...
     VirtualMidiController controllerOne;
-    
+    MonomeServer monomeServer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

@@ -8,6 +8,7 @@
 
 #include "Monome.hpp"
 #define MONOME_RECEIVE 7865
+#include "AIMORouter.hpp"
 
 Monome::Monome()
 {
@@ -17,7 +18,7 @@ Monome::Monome()
     
     for (int i = 0; i < 64; ++i)
     {
-        setKeyMapping("/controllerOne/grid/key " + String(i+40), i);
+        setKeyMapping("/controllerOne/grid/key", i);
     }
     
 }
@@ -42,7 +43,7 @@ bool Monome::connectToDevice(MonomeData deviceInfo)
     if (monomeReceive.connect(MONOME_RECEIVE) && monomeSend.connect(monomeData.host, monomeData.port))
     {
         OSCMessage setPrefix("/sys/prefix");
-        monomeData.prefix = "/ledm";
+        monomeData.prefix = "/aimo";
         setPrefix.addString(monomeData.prefix);
         monomeSend.send(setPrefix);
         
@@ -52,14 +53,14 @@ bool Monome::connectToDevice(MonomeData deviceInfo)
         
         setIntensity(15);
         
-        Timer::startTimer(100);
+        //Timer::startTimer(100);
         
         //setMask(CircleMasks::ring4);
         
         HighResolutionTimer::startTimer(20);
         
         
-        setMask(LetterMasks::Z);
+        //setMask(LetterMasks::Z);
 
     }
     else{
@@ -95,11 +96,31 @@ void Monome::oscMessageReceived (const OSCMessage& message)
 
         if (x < monomeData.size[0] && y < monomeData.size[1])
         {
-
             grid[x][y].lastPress = time.getMillisecondCounter();
             grid[x][y].s = s;
             setLight(x, y, s);
+
+            int padNum = x + (y*8);
+
             
+            String mappingString = getKeyMapping(padNum);
+            
+            MidiMessage midiMessage;
+            
+            if (s)
+            {
+                midiMessage = MidiMessage::noteOn(1, padNum, uint8(120));
+
+            }
+            else
+            {
+                midiMessage = MidiMessage::noteOff(1, padNum);
+            }
+            midiMessage.setChannel(1);
+            
+            
+            AIMORouter::Instance()->routeMidi(mappingString.upToLastOccurrenceOf(" ", false, true)
+                                              , midiMessage);
             
             
 //            if (numberMode && keysPressed == 0)
