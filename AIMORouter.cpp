@@ -8,6 +8,7 @@
 
 #include "AIMORouter.hpp"
 #include "VirtualMidiController.hpp"
+#include "RoutableMidiOutput.hpp"
 
 
 AIMORouter* AIMORouter::pInstance = 0;
@@ -15,7 +16,8 @@ AIMORouter* AIMORouter::pInstance = 0;
 
 AIMORouter::AIMORouter()
 {
-    
+    midiOutputs.add(new RoutableMidiOutput());
+    midiOutputs.getLast()->createNewDevice("AIMO Out");
 }
 
 AIMORouter::~AIMORouter()
@@ -38,15 +40,37 @@ AIMORouter* AIMORouter::Instance()
 
 bool AIMORouter::routeMidi (const String address, const MidiMessage message)
 {
-    for (int i = 0; i < registeredDestinations.size(); ++i)
+    String curSearch;
+   
+    for (int i = 0; i < midiOutputs.size(); i++)
     {
-        if (address.contains(registeredDestinations[i]->getID()))
+        curSearch = midiOutputs[i]->getDeviceName();
+    
+        if (address.contains(curSearch) && curSearch != "")
         {
-            
-            registeredDestinations[i]->route(message);
+            DBG("Externally Routed " + address);
+
+            midiOutputs[i]->routeMidi(address, message);
             return true;
         }
+        
     }
+    for (int i = 0; i < registeredDestinations.size(); i++)
+    {
+        curSearch = registeredDestinations[i]->getID();
+        
+        if (address.contains(curSearch) && curSearch != "")
+        {
+            DBG("Internally Routed: " + address);
+            
+            registeredDestinations[i]->routeMidi(address, message);
+            
+            return true;
+        }
+        
+    }
+    
+    DBG("Message not routed.. :" + address);
     
     return false;
 }

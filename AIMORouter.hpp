@@ -11,7 +11,9 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
+
 class VirtualMidiController;
+class RoutableMidiOutput;
 
 class AIMORouter : public DeletedAtShutdown
 {
@@ -32,6 +34,7 @@ private:
     static AIMORouter* pInstance;
     
     Array<VirtualMidiController*> registeredDestinations;
+    OwnedArray<RoutableMidiOutput> midiOutputs;
     
 };
 
