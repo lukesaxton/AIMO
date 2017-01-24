@@ -16,7 +16,6 @@
 class VMCModule{
 public:
     virtual ~VMCModule() {};
-    virtual void setMapIn (const String newMapIn) = 0;
     virtual void setMapOut (const String newMapOut) = 0;
     virtual bool routeMidi (const String address, const MidiMessage message) = 0;
 
@@ -58,7 +57,6 @@ public:
     KeyboardModule();
     ~KeyboardModule();
     
-    void setMapIn (const String newMapIn) override;
     void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
 
@@ -86,7 +84,6 @@ public:
     ControlModule();
     ~ControlModule();
     
-    void setMapIn (const String newMapIn) override;
     void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
     

@@ -7,7 +7,7 @@
 //
 
 #include "GridModule.hpp"
-
+#include "AIMORouter.hpp"
 //=================================================================================================
 //
 //      GRID MODULE
@@ -21,6 +21,8 @@ GridModule::GridModule(const int gridSize)
         buttons.add(new GridButton());
         addAndMakeVisible(buttons.getLast());
     }
+    
+    mapOut = "/AIMO Out";
 }
 
 GridModule::~GridModule()
@@ -28,22 +30,22 @@ GridModule::~GridModule()
     
 }
 
-void GridModule::setMapIn (const String newMapIn)
-{
-    
-}
 
 void GridModule::setMapOut (const String newMapOut)
 {
-    
+    mapOut = newMapOut;
 }
+
 bool GridModule::routeMidi (const String address, const MidiMessage message)
 
 {
     if (address.contains("key"))
     {
-       
-        return true;
+//        MidiMessage mappedMessage(message);
+//        mappedMessage.setNoteNumber(48);
+        
+        return AIMORouter::Instance()->routeMidi(mapOut, message);
+        
         //DBG(<#textToWrite#>)
         //        if (pad > -1 && pad < 128)
         //        {

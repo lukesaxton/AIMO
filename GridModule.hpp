@@ -70,7 +70,6 @@ public:
     GridModule(const int gridSize);
     ~GridModule();
     
-    void setMapIn (const String newMapIn) override;
     void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
     
@@ -82,6 +81,7 @@ public:
     
 private:
     OwnedArray<GridButton> buttons;
+    String mapOut;
 };
 
 

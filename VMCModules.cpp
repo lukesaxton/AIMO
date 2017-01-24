@@ -21,20 +21,19 @@ KeyboardModule::~KeyboardModule()
     
 }
 
-void KeyboardModule::setMapIn (const String newMapIn)
-{
-    
-}
 
 void KeyboardModule::setMapOut (const String newMapOut)
 {
     
 }
 
-void KeyboardModule::route(const String message)
+bool KeyboardModule::routeMidi (const String address, const MidiMessage message)
 {
-    
+    keyboardState.processNextMidiEvent(message);
+    return true;
 }
+
+
 
 void KeyboardModule::paint(Graphics& g)
 {
@@ -53,7 +52,7 @@ void KeyboardModule::resized()
 void KeyboardModule::handleNoteOn (MidiKeyboardState *source, int midiChannel,
                                    int midiNoteNumber, float velocity)
 {
-    AIMORouter::Instance()->route(outMapping + " " + );
+    //AIMORouter::Instance()->routeMidi;
 }
 void KeyboardModule::handleNoteOff (MidiKeyboardState *source, int midiChannel,
                                     int midiNoteNumber, float velocity)
