@@ -18,7 +18,7 @@ class VirtualMidiController : public Component
 {
 public:
     
-    VirtualMidiController(String ID);
+    VirtualMidiController(String _ID);
     ~VirtualMidiController();
     
     bool routeMidi (const String address, const MidiMessage message);

@@ -48,7 +48,7 @@ bool AIMORouter::routeMidi (const String address, const MidiMessage message)
     
         if (address.contains(curSearch) && curSearch != "")
         {
-            DBG("Externally Routed " + address);
+            //DBG("Externally Routed " + address);
 
             midiOutputs[i]->routeMidi(address, message);
             return true;
@@ -61,7 +61,7 @@ bool AIMORouter::routeMidi (const String address, const MidiMessage message)
         
         if (address.contains(curSearch) && curSearch != "")
         {
-            DBG("Internally Routed: " + address);
+            //DBG("Internally Routed: " + address);
             
             registeredDestinations[i]->routeMidi(address, message);
             
@@ -70,7 +70,8 @@ bool AIMORouter::routeMidi (const String address, const MidiMessage message)
         
     }
     
-    DBG("Message not routed.. :" + address);
+    DBG("Message not routed.. " + address);
+    jassertfalse;
     
     return false;
 }

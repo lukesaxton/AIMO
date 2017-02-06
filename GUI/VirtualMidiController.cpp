@@ -9,13 +9,15 @@
 #include "VirtualMidiController.hpp"
 #include "AIMORouter.hpp"
 
-VirtualMidiController::VirtualMidiController(String ID)
+VirtualMidiController::VirtualMidiController(String _ID)
 {
     grid = new GridModule(64);
     addAndMakeVisible(grid);
     
-    keyboard = new KeyboardModule();
-    addAndMakeVisible(keyboard);
+    ID = _ID;
+    
+    //keyboard = new KeyboardModule();
+    //addAndMakeVisible(keyboard);
     
     AIMORouter::Instance()->addDestination(this);
 }
@@ -40,30 +42,17 @@ bool VirtualMidiController::routeMidi (const String address, const MidiMessage m
 
 void VirtualMidiController::paint(Graphics& g)
 {
-    g.fillAll(Colours::darkslategrey);
+    g.fillAll(Colours::black);
+    
+    
+
 }
 
 void VirtualMidiController::resized()
 {
-    float x = getWidth();
-    float y = getHeight()/2.0;
+    grid->setBounds(getLocalBounds());
     
-    if (grid)
-    {
-        if (x<=y)
-        {
-            grid->setBounds(0,0, x-10, x-10);
-        }
-        else
-        {
-            grid->setBounds(0,0, y-10, y-10);
-
-        }
-        
-        grid->setCentrePosition(x/2.0, y/2.0);
-    }
-    
-    keyboard->setBounds(0, y, x, y);
+    //keyboard->setBounds(0, y, x, y);
 }
 
 const String VirtualMidiController::getID()
