@@ -13,11 +13,45 @@
 
 namespace IntervalSpacings
 {
-    //const char* ScaleNames[] = {"Major", "Natural Minor", "Harmonic Minor", "Hungarian", NULL};
-    const int Major[] = {0, 2, 4, 5, 7, 9, 11, -1};
-    const int NaturalMinor[] = {0, 2, 3, 5, 7, 8, 10, -1};
-    const int HarmonicMinor[] = {0, 2, 3, 5, 7, 8, 11, -1};
-    const int Hungarian[] = {0, 2, 3, 6, 7, 8, 11, -1};
+
+    //MODES
+    const int Aeolian[] = {0,2,3,4,7,8,10,-1};
+    const int Doriane[] = {0,2,3,5,7,9,10,-1};
+    const int Ionian[] = {0,2,4,5,7,9,11,-1};
+    const int Locrian[] = {0,1,3,5,6,8,10,-1};
+    const int Lydian[] = {0,1,4,6,7,9,11,-1};
+    const int Phrygian[] = {0,1,3,5,7,8,10,-1};
+    
+    //SCALES
+    const int Acoustic[] = {0,2,4,6,7,9,-1};
+    const int NaturalMinor[] = {0,2,3,5,7,8,10,-1};
+    const int Algerian[] = {0,2,3,6,7,8,11, -1};
+    const int Augmented[] = {0,3,4,7,8,11,-1};
+    const int BebopDominant[] = {0,2,4,5,7,9,10,11,-1};
+    const int Blues[] = {0,3,5,6,7,10,-1};
+    const int Chromatic[] = {0,1,2,3,4,5,6,7,8,9,10,11,-1};
+    const int DoubleHarmonic[] = {0,1,4,5,7,8,11,-1};
+    const int Enigmatic[] = {0,1,4,6,8,10,11,-1};
+    const int Gypsy[] = {0,2,3,6,7,8,10,-1};
+    const int HalfDiminished[] = {0,2,3,5,6,8,10,-1};
+    const int HarmonicMajor[] = {0,2,4,5,7,8,11,-1};
+    const int HarmonicMinor[] = {0,2,3,5,7,8,11,-1};
+    const int Hirajoshi[] = {0,2,3,7,8,-1};
+    const int HungarianMinor[] = {0,2,3,6,7,8,11,-1};
+    const int Major[] = {0,2,4,5,7,9,-1};
+    const int MajorBebop[] = {0,2,4,5,7,8,9,11,-1};
+    const int MajorLocran[] = {0,2,4,5,6,8,10,-1};
+    const int MajorPentatonic[] = {0,2,4,7,9,-1};
+    const int MelodicMinor[] = {0,2,3,5,7,8,9,11,-1};
+    const int MinorPentatonic[] = {0,3,5,7,10,-1};
+    const int Mixolydian[] = {0,2,4,5,7,9,10,-1};
+    const int NeopolitanMajor[] = {0,1,3,5,7,9,11,-1};
+    const int NeopolitanMinor[] = {0,1,3,5,7,8,11,-1};
+    const int Persian[] = {0,1,4,5,6,8,11,-1};
+    const int PhrygianDominant[] = {0,1,4,5,7,8,10,-1};
+    const int Tritone[] = {0,1,4,6,7,10};
+    const int WholeTone[] = {0,2,4,6,8,10,-1};
+    
 };
 
 //=================================================================================================
@@ -183,15 +217,45 @@ void GridModule::resized()
 
 void GridModule::mouseDown(const MouseEvent &event)
 {
-    CallOutBox::launchAsynchronously(new ConfigComponent(), this->getScreenBounds(), nullptr);
+    
+    if (event.mods.isCtrlDown())
+    {
+        CallOutBox::launchAsynchronously(new ConfigComponent(this), this->getScreenBounds(), nullptr);
+    }
+    else
+    {
+        for (int i = 0; i < buttons.size(); i++)
+        {
+            if (event.eventComponent == buttons[i])
+            {
+                routeMidi("key", MidiMessage::noteOn(1, i, uint8(110)));
+            }
+        }
+    }
+
+    
+}
+
+
+void GridModule::mouseUp(const MouseEvent &event)
+{
+    
+    for (int i = 0; i < buttons.size(); i++)
+    {
+        if (event.eventComponent == buttons[i])
+        {
+            routeMidi("key", MidiMessage::noteOff(1, i));
+        }
+    }
     
 }
 
 void GridModule::setRootNote(const int newNote)
 {
-    if (newNote >-1 && newNote < 128)
+    if (newNote > -1 && newNote < 128)
     {
         rootNote = newNote;
+        setScale(getScale());
     }
 }
 
@@ -217,20 +281,29 @@ void GridModule::setScale(const int newScale)
                 }
                 break;
             case NaturalMinor:
-                for (int i = 0; IntervalSpacings::NaturalMinor[i] == -1; i++)
+                while (IntervalSpacings::NaturalMinor[index] != -1)
                 {
-                    foundScale.add(IntervalSpacings::NaturalMinor[i]);
-                }                break;
+                    foundScale.add(IntervalSpacings::NaturalMinor[index]);
+                    DBG(foundScale.getLast());
+                    index++;
+                }
+                break;
             case HarmonicMinor:
-                for (int i = 0; IntervalSpacings::HarmonicMinor[i] == -1; i++)
+                while (IntervalSpacings::HarmonicMinor[index] != -1)
                 {
-                    foundScale.add(IntervalSpacings::HarmonicMinor[i]);
-                }                break;
+                    foundScale.add(IntervalSpacings::HarmonicMinor[index]);
+                    DBG(foundScale.getLast());
+                    index++;
+                }
+                break;
             case Hungarian:
-                for (int i = 0; IntervalSpacings::Hungarian[i] == -1; i++)
+                while (IntervalSpacings::HungarianMinor[index] != -1)
                 {
-                    foundScale.add(IntervalSpacings::Hungarian[i]);
-                }                break;
+                    foundScale.add(IntervalSpacings::HungarianMinor[index]);
+                    DBG(foundScale.getLast());
+                    index++;
+                }
+                break;
             default:
                 jassertfalse;
                 break;

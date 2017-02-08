@@ -45,26 +45,29 @@ public:
             switch (buttonState)
             {
                 case Off:
-                    g.setColour(Colours::slategrey);
+                    buttonColour = Colours::slategrey;
                     break;
                 case On:
-                    g.setColour(Colours::whitesmoke);
+                    buttonColour = Colours::whitesmoke;
                     break;
                 case HighlightOn:
-                    g.setColour(Colours::orange);
+                    buttonColour = Colours::orange;
                     break;
                 case HighlightOff:
-                    g.setColour(Colours::chocolate);
+                    buttonColour = Colours::chocolate;
                     break;
             }
             
-            if (buttonState)
+            if (buttonState == On)
             {
-                g.setColour(Colours::whitesmoke);
+                buttonColour = Colours::whitesmoke;
             }
-            else
+            else if (buttonState == HighlightOn)
             {
+                buttonColour = buttonColour.brighter();
             }
+            
+            g.setColour(buttonColour);
             g.fillRect(padding, padding, getWidth()- 2*padding, getHeight() - 2*padding);
             
             
@@ -80,14 +83,32 @@ public:
        
     private:
         int buttonState = 0;
+        Colour buttonColour;
     };
     
-    class ConfigComponent : public Component
+    class ConfigComponent : public Component,
+                            public Slider::Listener,
+                            public ComboBox::Listener
     {
     public:
-        ConfigComponent()
+        ConfigComponent(GridModule* _grid)
         {
+            
+            grid = _grid;
             setSize(200, 300);
+            
+            rootNoteSlider.setRange(0, 127, 1);
+            rootNoteSlider.setValue(grid->getRootNote(), dontSendNotification);
+            rootNoteSlider.addListener(this);
+            addAndMakeVisible(&rootNoteSlider);
+            
+            scaleBox.addItem("Major", Scale::Major + 1);
+            scaleBox.addItem("Minor", Scale::NaturalMinor + 1);
+            scaleBox.addItem("Harmonic Minor", Scale::HarmonicMinor + 1);
+            scaleBox.addItem("Hungarian", Scale::Hungarian + 1);
+            scaleBox.setSelectedId(grid->getScale()+1, dontSendNotification);
+            scaleBox.addListener(this);
+            addAndMakeVisible(&scaleBox);
         }
         ~ConfigComponent()
         {
@@ -95,12 +116,28 @@ public:
         }
         void paint(Graphics& g) override
         {
-            g.fillAll(Colours::hotpink);
+            //g.fillAll(Colours::darkgrey);
         }
         void resized() override
         {
-            
+            rootNoteSlider.setBounds(0, 0, getWidth(), 30);
+            scaleBox.setBounds(rootNoteSlider.getBounds().translated(0, 30));
         }
+        
+        void sliderValueChanged (Slider* slider) override
+        {
+            grid->setRootNote(slider->getValue());
+        }
+        
+        void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override
+        {
+            grid->setScale(comboBoxThatHasChanged->getSelectedId()-1);
+        }
+        
+    private:
+        GridModule* grid;
+        Slider rootNoteSlider;
+        ComboBox scaleBox;
     };
     
     GridModule(const int gridSize);
@@ -114,6 +151,8 @@ public:
     void paint(Graphics& g) override;
     void resized() override;
     void mouseDown(const MouseEvent &event) override;
+    void mouseUp(const MouseEvent &event) override;
+
     
     void setRootNote(const int newNote);
     const int getRootNote();
@@ -126,7 +165,7 @@ private:
     String mapOut;
     Rectangle<int> buttonBoundingBox;
     int64 timeSinceLastMessage = 0;
-    int rootNote = 24;
+    int rootNote = 48;
     int currentScale;
     Array<int> noteMappings;
 };
