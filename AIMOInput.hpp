@@ -22,7 +22,7 @@ public:
     
     void setKeyMapping(const String newMapping, const int forKey);
     void setControlMapping(const String newMapping, const int forControl);
-    void setProgramyMapping(const String newMapping, const int forProgram);
+    void setProgramMapping(const String newMapping, const int forProgram);
 
     
 private:

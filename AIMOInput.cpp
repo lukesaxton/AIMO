@@ -77,7 +77,7 @@ void AIMOInput::setControlMapping(const String newMapping, const int forControl)
 
 }
 
-void AIMOInput::setProgramyMapping(const String newMapping, const int forProgram)
+void AIMOInput::setProgramMapping(const String newMapping, const int forProgram)
 {
     if (forProgram >= 0 && forProgram < 128)
     {
