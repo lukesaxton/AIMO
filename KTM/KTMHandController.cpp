@@ -31,7 +31,17 @@ KTMHandController::~KTMHandController()
 
 bool KTMHandController::connect()
 {
-    return controllerReceive.connect(KTM_CONTROLLER_PORT);
+    if (controllerReceive.connect(KTM_CONTROLLER_PORT))
+    {
+        DBG("Connected to KTMController receive port");
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+    
+   
 }
 
 void KTMHandController::oscMessageReceived (const OSCMessage& message)
