@@ -100,9 +100,6 @@ public:
                 
                 //monomeSender.connect(<#const juce::String &targetHostName#>, <#int targetPortNumber#>)
                 
-                
-                
-                
             }
         }
         
