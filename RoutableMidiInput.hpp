@@ -23,12 +23,26 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "AIMOInput.hpp"
 
-class RoutableMidiInput : public AIMOInput
+class RoutableMidiInput : public AIMOInput,
+                          public MidiInputCallback
 {
 public:
-    RoutableMidiInput();
+    enum MidiInputType{
+        Keyboard = 0,
+        Grid,
+    };
+    
+    RoutableMidiInput(const String deviceToConnetTo);
     ~RoutableMidiInput();
     
+    void refreshDeviceList();
+    
+    void handleIncomingMidiMessage (MidiInput* source,
+                                    const MidiMessage& message) override;
+    
+private:
+    MidiInput* input;
+    StringArray deviceList;
 };
 
 #endif /* RoutableMidiInput_hpp */
