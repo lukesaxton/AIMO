@@ -60,10 +60,15 @@ namespace IntervalSpacings
     const int NeopolitanMinor[] = {0,1,3,5,7,8,11,-1};
     const int Persian[] = {0,1,4,5,6,8,11,-1};
     const int PhrygianDominant[] = {0,1,4,5,7,8,10,-1};
-    const int Tritone[] = {0,1,4,6,7,10};
+    const int Tritone[] = {0,1,4,6,7,10, -1};
     const int WholeTone[] = {0,2,4,6,8,10,-1};
     
 };
+
+namespace KeyMasks
+{
+    const int WhiteNoteMask[] = {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,  0, -1, 1, -1, 2, 3, -1, 4, -1, 5, -1, 6, 7, -1, 8, -1, 9, 10, -1, 11, -1, 12, -1, 13, 14, -1, 15, -1, 16, 17, -1, 18, -1, 19, -1, 20, 21, -1, 22, -1, 23, 24, -1, 25, -1, 26, -1, 27, 28, -1, 29, -1, 30, 31, -1, 32, -1, 33, -1, 34, 35, -1, 36, -1, 37, 38, -1, 39, -1, 40, -1, 41, 42, -1, 43, -1, 44, 45, -1, 46, -1, 47, -1, 48, 49, -1, 50, -1, 51, 52, -1, 53, -1, 54, -1, 55, 56, -1, 57, -1, 58, 59, -1, 60, -1, 61, -1, 62, 63, -1, -1, -1, -1, -1, -1, NULL};
+}
 
 //=================================================================================================
 //
@@ -107,34 +112,62 @@ bool GridModule::routeMidi (const String address, const MidiMessage message)
     if (address.contains("key"))
     {
         MidiMessage mappedMessage(message);
+        int buttonPressed = -1;
+        bool shouldSend = true;
         
-        
-        if (message.getNoteNumber() < buttons.size())
+        if (mappedMessage.isNoteOnOrOff())
         {
-            mappedMessage.setNoteNumber(noteMappings[message.getNoteNumber()]);
+            switch (currentInputType) {
+                case AllKeys:
+                    buttonPressed = message.getNoteNumber();
+                    if (buttonPressed < buttons.size())
+                    {
+                        mappedMessage.setNoteNumber(noteMappings[buttonPressed]);
+                    }
+
+                    break;
+                 case WhiteKeys:
+                    if (KeyMasks::WhiteNoteMask[message.getNoteNumber()] != -1)
+                    {
+                        buttonPressed = KeyMasks::WhiteNoteMask[message.getNoteNumber()];
+                        mappedMessage.setNoteNumber(noteMappings[buttonPressed]);
+                    }
+                    else
+                    {
+                        shouldSend = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
             
-            if (message.isNoteOn())
+            if (buttonPressed != -1 && buttonPressed < buttons.size())
             {
-                buttons[message.getNoteNumber()]->setButtonState(true);
+                if (message.isNoteOn())
+                {
+                    buttons[buttonPressed]->setButtonState(true);
+                }
+                else if (message.isNoteOff())
+                {
+                    buttons[buttonPressed]->setButtonState(false);
+                }
             }
-            else if (message.isNoteOff())
-            {
-                buttons[message.getNoteNumber()]->setButtonState(false);
-            }
+
+        }
+        else if (mappedMessage.isSustainPedalOn() || mappedMessage.isSustainPedalOff())
+        {
+            //just pass through for now
+        }
+        
+        
+        if (shouldSend)
+        {
+            return AIMORouter::Instance()->routeMidi(mapOut, mappedMessage);
         }
         else
         {
-            jassert(false);
-            //trying to route to a button that doesn't exist
+            return false;
         }
-        
-        
-        //key and note scaling
-        
-        
-        
-        
-        return AIMORouter::Instance()->routeMidi(mapOut, mappedMessage);
         
     }
     else
@@ -171,7 +204,6 @@ void GridModule::resized()
     else
     {
         buttonBoundingBox.setBounds(0,0, y-10, y-10);
-        
     }
     
     buttonBoundingBox.setCentre(x/2.0, y/2.0);
@@ -229,17 +261,32 @@ void GridModule::resized()
 void GridModule::mouseDown(const MouseEvent &event)
 {
     
-    if (event.mods.isCtrlDown())
+    if (event.mods.isRightButtonDown()) //trigger the note of the pressed button
     {
         CallOutBox::launchAsynchronously(new ConfigComponent(this), this->getScreenBounds(), nullptr);
+
     }
     else
     {
         for (int i = 0; i < buttons.size(); i++)
         {
-            if (event.eventComponent == buttons[i])
+            if (event.eventComponent == buttons[i]) //locating the button that has been pressed
             {
-                routeMidi("key", MidiMessage::noteOn(1, i, uint8(110)));
+                if (currentInputType == AllKeys || currentInputType == Grid) //for modes where route midi is accepting notes 0-63
+                {
+                    routeMidi("key", MidiMessage::noteOn(1, i, uint8(110)));
+                }
+                else if (currentInputType == WhiteKeys) //where routeMidi is only accepting white notes
+                {
+                    for (int search = 0; search < 128; search++) //search the white key mask for the white note that matches the found button ID
+                    {
+                        if (KeyMasks::WhiteNoteMask[search] == i)
+                        {
+                            routeMidi("key", MidiMessage::noteOn(1, search, uint8(110)));
+                        }
+                    }
+                }
+                
             }
         }
     }
@@ -255,8 +302,20 @@ void GridModule::mouseUp(const MouseEvent &event)
     {
         if (event.eventComponent == buttons[i])
         {
-            routeMidi("key", MidiMessage::noteOff(1, i));
-        }
+            if (currentInputType == AllKeys || currentInputType == Grid)
+            {
+                routeMidi("key", MidiMessage::noteOff(1, i, uint8(110)));
+            }
+            else if (currentInputType == WhiteKeys)
+            {
+                for (int search = 0; search < 128; search++)
+                {
+                    if (KeyMasks::WhiteNoteMask[search] == i)
+                    {
+                        routeMidi("key", MidiMessage::noteOff(1, search, uint8(110)));
+                    }
+                }
+            }        }
     }
     
 }
@@ -563,6 +622,18 @@ const int GridModule::getScale()
 }
 
 
+void GridModule::setInputType(const int newType)
+{
+    if (newType > -1 && newType < FINAL_INPUT_TYPE)
+    {
+        currentInputType = InputType(newType);
+    }
+}
+
+const int GridModule::getInputType()
+{
+    return currentInputType;
+}
 
 
 

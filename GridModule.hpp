@@ -67,6 +67,13 @@ public:
         FINAL_SCALE
     };
     
+    enum InputType{
+        WhiteKeys = 0,
+        AllKeys,
+        Grid,
+        FINAL_INPUT_TYPE
+    };
+    
     class GridButton : public VMCMappableControl
     {
     public:
@@ -174,14 +181,22 @@ public:
             scaleBox.addItem("Major Locran", Scale::MajorLocran + 1);
             scaleBox.addItem("Neopolitan Major", Scale::NeopolitanMajor + 1);
             scaleBox.addItem("Neopolitan Minor", Scale::NeopolitanMinor + 1);
-            scaleBox.addItem("Double Harmonic", Scale::DoubleHarmonic + 1);
             scaleBox.addItem("Persian", Scale::Persian + 1);
             scaleBox.addItem("Tritone", Scale::Tritone + 1);
             scaleBox.addItem("Whole Tone", Scale::WholeTone + 1);
-            
+
             scaleBox.setSelectedId(grid->getScale()+1, dontSendNotification);
             scaleBox.addListener(this);
             addAndMakeVisible(&scaleBox);
+            
+            inputModeBox.addItem("White Keys", InputType::WhiteKeys + 1);
+            inputModeBox.addItem("All Keys", InputType::AllKeys + 1);
+            inputModeBox.addItem("Grid", InputType::Grid + 1);
+            
+            inputModeBox.setSelectedId(grid->getInputType()+1, dontSendNotification);
+            inputModeBox.addListener(this);
+            addAndMakeVisible(inputModeBox);
+
         }
         ~ConfigComponent()
         {
@@ -194,7 +209,9 @@ public:
         void resized() override
         {
             rootNoteSlider.setBounds(0, 0, getWidth(), 30);
-            scaleBox.setBounds(rootNoteSlider.getBounds().translated(0, 30));
+            scaleBox.setBounds(rootNoteSlider.getBounds().translated(0, 32));
+            inputModeBox.setBounds(scaleBox.getBounds().translated(0, 32));
+
         }
         
         void sliderValueChanged (Slider* slider) override
@@ -204,13 +221,22 @@ public:
         
         void comboBoxChanged (ComboBox* comboBoxThatHasChanged) override
         {
-            grid->setScale(comboBoxThatHasChanged->getSelectedId()-1);
+            if (comboBoxThatHasChanged == &scaleBox)
+            {
+                grid->setScale(comboBoxThatHasChanged->getSelectedId()-1);
+            }
+            else if (comboBoxThatHasChanged == &inputModeBox)
+            {
+                grid->setInputType(comboBoxThatHasChanged->getSelectedId()-1);
+            }
+            
         }
         
     private:
         GridModule* grid;
         Slider rootNoteSlider;
         ComboBox scaleBox;
+        ComboBox inputModeBox;
     };
     
     GridModule(const int gridSize);
@@ -233,6 +259,9 @@ public:
     void setScale(const int newScale);
     const int getScale();
     
+    void setInputType(const int newType);
+    const int getInputType();
+    
 private:
     OwnedArray<GridButton> buttons;
     String mapOut;
@@ -241,6 +270,7 @@ private:
     int rootNote = 24;
     int currentScale;
     Array<int> noteMappings;
+    InputType currentInputType = WhiteKeys;
 };
 
 
