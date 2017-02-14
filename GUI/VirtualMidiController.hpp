@@ -33,6 +33,7 @@ public:
     ~VirtualMidiController();
     
     bool routeMidi (const String address, const MidiMessage message);
+    bool mapMidi (const String address, const String source, const MidiMessage message);
     
     void paint(Graphics& g) override;
     void resized() override;

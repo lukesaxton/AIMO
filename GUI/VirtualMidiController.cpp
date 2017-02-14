@@ -51,6 +51,13 @@ bool VirtualMidiController::routeMidi (const String address, const MidiMessage m
     return false;
 }
 
+bool VirtualMidiController::mapMidi (const String address, const String source, const MidiMessage message)
+{
+    jassertfalse; //not yet implemented
+    // this should function should allow mapping of devices to the various funtion of this VMC
+    return false;
+}
+
 
 void VirtualMidiController::paint(Graphics& g)
 {

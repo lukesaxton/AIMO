@@ -95,3 +95,11 @@ void AIMORouter::addDestination(VirtualMidiController* destination)
 
     }
 }
+
+
+bool mapMidi (const String address, const String source, const MidiMessage message)
+{
+    
+    jassertfalse; // need to implemet this first..
+    return false;
+}
