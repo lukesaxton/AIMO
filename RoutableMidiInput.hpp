@@ -24,7 +24,9 @@
 #include "AIMOInput.hpp"
 
 class RoutableMidiInput : public AIMOInput,
-                          public MidiInputCallback
+                          public MidiInputCallback,
+                          public Component,
+                          public Timer
 {
 public:
     enum MidiInputType{
@@ -32,7 +34,40 @@ public:
         Grid,
     };
     
-    RoutableMidiInput(const String deviceToConnetTo);
+    class ConfigComponent : public Component
+    {
+    public:
+        ConfigComponent(RoutableMidiInput* parent)
+        {
+            midiInput = parent;
+            
+            deviceName.setColour(Label::textColourId, Colours::whitesmoke);
+            addAndMakeVisible(deviceName);
+            update();
+            setSize(200, 100);
+        }
+        ~ConfigComponent()
+        {
+            
+        }
+        void paint(Graphics& g) override
+        {
+            
+        }
+        void resized() override
+        {
+            deviceName.setBounds(0, 0, getWidth(), 30);
+        }
+        void update()
+        {
+            deviceName.setText(midiInput->getDeviceToConnect(), dontSendNotification);
+        }
+    private:
+        RoutableMidiInput* midiInput;
+        Label deviceName;
+    };
+    
+    RoutableMidiInput(const String deviceToConnectTo);
     ~RoutableMidiInput();
     
     void refreshDeviceList();
@@ -40,9 +75,22 @@ public:
     void handleIncomingMidiMessage (MidiInput* source,
                                     const MidiMessage& message) override;
     
+    void paint(Graphics& g) override;
+    void resized() override;
+    void mouseDown(const MouseEvent& event) override;
+    
+    
+    void timerCallback() override;
+    
+    const String getDeviceToConnect();
+
 private:
-    MidiInput* input;
+    
+    
+    ScopedPointer<MidiInput> input = nullptr;
     StringArray deviceList;
+    String deviceToConnect;
+    bool connected = false;
 };
 
 #endif /* RoutableMidiInput_hpp */

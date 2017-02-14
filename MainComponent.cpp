@@ -18,6 +18,7 @@
 #include "MonomeServer.h"
 #include "KTMHandController.hpp"
 #include "RoutableMidiInput.hpp"
+#include "AIMOInputManager.hpp"
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -34,8 +35,7 @@ public:
         // specify the number of input and output channels that we want to open
         setAudioChannels (2, 2);
         
-        midiInput = new RoutableMidiInput("Impulse  Impulse");
-        
+        addAndMakeVisible(inputManager);
         addAndMakeVisible(controllerOne);
     }
 
@@ -89,6 +89,7 @@ public:
 
     void resized() override
     {
+        inputManager.setBounds(0, 0, 60, getHeight());
         controllerOne.setBounds(60, 0, getWidth()-60, getHeight());
     }
 
@@ -99,7 +100,7 @@ private:
     VirtualMidiController controllerOne;
     MonomeServer monomeServer;
     KTMHandController kTMController;
-    ScopedPointer<RoutableMidiInput> midiInput;
+    AIMOInputManager inputManager;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };

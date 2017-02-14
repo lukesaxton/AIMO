@@ -20,17 +20,20 @@
 #include "RoutableMidiInput.hpp"
 #include "AIMORouter.hpp"
 
-RoutableMidiInput::RoutableMidiInput(const String deviceToConnetTo)
+RoutableMidiInput::RoutableMidiInput(const String deviceToConnectTo)
 {
     refreshDeviceList();
+    
+    deviceToConnect = deviceToConnectTo;
     
     for (int i = 0; i < deviceList.size(); i++)
     {
         DBG(deviceList[i]);
-        if (deviceList[i] == deviceToConnetTo)
+        if (deviceList[i] == deviceToConnect)
         {
             input = MidiInput::openDevice(i, this);
             input->start();
+            connected = true;
         }
     }
     
@@ -38,6 +41,8 @@ RoutableMidiInput::RoutableMidiInput(const String deviceToConnetTo)
     {
         setKeyMapping("/controllerOne/grid/key/", i);
     }
+    
+    startTimer(1000);
 }
 
 RoutableMidiInput::~RoutableMidiInput()
@@ -57,10 +62,93 @@ void RoutableMidiInput::handleIncomingMidiMessage (MidiInput* source, const Midi
     if (source == input)
     {
         //DBG("Midi Input Message Received");
-        DBG(message.getDescription());
+        if (!message.isMidiClock())
+        {
+            DBG(message.getDescription());
+        }
         
         
         AIMORouter::Instance()->routeMidi("/controllerOne/grid/key/", message);
         
     }
 }
+
+
+void RoutableMidiInput::paint(Graphics& g)
+{
+    g.fillAll(Colours::black);
+    
+    if (connected)
+    {
+        g.setColour(Colours::darkcyan);
+    }
+    else
+    {
+        g.setColour(Colours::darkgrey);
+    }
+    
+    
+    g.fillRect(3, 3, getWidth()-6, getHeight()-6);
+    
+    g.setColour(Colours::white);
+    g.drawText(deviceToConnect.substring(0, 8), getLocalBounds(), Justification::centred);
+}
+
+void RoutableMidiInput::resized()
+{
+    
+}
+
+void RoutableMidiInput::mouseDown(const MouseEvent& event)
+{
+    if (event.mods.isRightButtonDown())
+    {
+        CallOutBox::launchAsynchronously(new ConfigComponent(this), getScreenBounds(), nullptr);
+    }
+}
+
+void RoutableMidiInput::timerCallback()
+{
+    refreshDeviceList();
+    bool foundDevice;
+    for (int i = 0; i < deviceList.size(); i++)
+    {
+        if (deviceList[i] == deviceToConnect)
+        {
+            foundDevice = true;
+        }
+    }
+    
+    if (!foundDevice)
+    {
+        if (input != nullptr)
+        {
+            input->stop();
+        }
+        connected = false;
+    }
+    else
+    {
+        if (!connected)
+        {
+            for (int i = 0; i < deviceList.size(); i++)
+            {
+                DBG(deviceList[i]);
+                if (deviceList[i] == deviceToConnect)
+                {
+                    input = MidiInput::openDevice(i, this);
+                    input->start();
+                    connected = true;
+                }
+            }
+        }
+    }
+    
+    repaint();
+}
+
+const String RoutableMidiInput::getDeviceToConnect()
+{
+    return deviceToConnect;
+}
+
