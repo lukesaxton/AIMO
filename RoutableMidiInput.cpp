@@ -1,8 +1,8 @@
 //
-//  RoutableMidiOutput.hpp
+//  RoutableMidiInput.cpp
 //  AIMO
 //
-//  Created by Luke Saxton on 20/01/2017.
+//  Created by Luke Saxton on 14/02/2017.
 //
 //
 //  AI:MO is free software: you can redistribute it and/or modify
@@ -17,27 +17,4 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef RoutableMidiOutput_hpp
-#define RoutableMidiOutput_hpp
-
-#include "../JuceLibraryCode/JuceHeader.h"
-
-class RoutableMidiOutput
-{
-public:
-    RoutableMidiOutput();
-    ~RoutableMidiOutput();
-    
-    bool connectToDevice(const String deviceName);
-    bool createNewDevice(const String deviceName);
-
-    
-    bool routeMidi (const String address, const MidiMessage message);
-    
-    const String getDeviceName();
-    
-private:
-    ScopedPointer<MidiOutput> output;
-};
-
-#endif /* RoutableMidiOutput_hpp */
+#include "RoutableMidiInput.hpp"

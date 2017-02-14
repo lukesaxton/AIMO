@@ -1,10 +1,14 @@
-/*
-  ==============================================================================
-
-    This file was auto-generated!
-
-  ==============================================================================
-*/
+//  AI:MO is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License, version 3,
+//  as published by the Free Software Foundation.
+//
+//  AI::MO is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//  GNU General Public License for more details.
+//
+//  You should have received a copy of the GNU General Public License
+//  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef MAINCOMPONENT_H_INCLUDED
 #define MAINCOMPONENT_H_INCLUDED
@@ -12,6 +16,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "VirtualMidiController.hpp"
 #include "MonomeServer.h"
+#include "KTMHandController.hpp"
 //==============================================================================
 /*
     This component lives inside our window, and this is where you should put all
@@ -29,8 +34,6 @@ public:
         setAudioChannels (2, 2);
         
         addAndMakeVisible(controllerOne);
-        
-        
     }
 
     ~MainContentComponent()
@@ -73,7 +76,9 @@ public:
     void paint (Graphics& g) override
     {
         // (Our component is opaque, so we must completely fill the background with a solid colour)
-        g.fillAll (Colours::black);
+        
+        
+        g.fillAll (Colours::limegreen);
 
 
         // You can add your drawing code here!
@@ -81,17 +86,19 @@ public:
 
     void resized() override
     {
-        controllerOne.setBounds(10, 10, getWidth()-20, getHeight()-20);
+        controllerOne.setBounds(60, 0, getWidth()-60, getHeight());
     }
 
 
 private:
     //==============================================================================
-
-    // Your private member variables go here...
+    
     VirtualMidiController controllerOne;
     MonomeServer monomeServer;
-
+    KTMHandController kTMController;
+    
+    
+    
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)
 };
 

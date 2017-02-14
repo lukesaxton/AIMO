@@ -1,8 +1,8 @@
 //
-//  AIMORouter.hpp
+//  RoutableMidiInput.hpp
 //  AIMO
 //
-//  Created by Luke Saxton on 19/01/2017.
+//  Created by Luke Saxton on 14/02/2017.
 //
 //
 //  AI:MO is free software: you can redistribute it and/or modify
@@ -17,36 +17,18 @@
 //  You should have received a copy of the GNU General Public License
 //  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-#ifndef AIMORouter_hpp
-#define AIMORouter_hpp
+#ifndef RoutableMidiInput_hpp
+#define RoutableMidiInput_hpp
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "AIMOInput.hpp"
 
-
-class VirtualMidiController;
-class RoutableMidiOutput;
-
-class AIMORouter : public DeletedAtShutdown
+class RoutableMidiInput : public AIMOInput
 {
 public:
-    
-    static AIMORouter* Instance();
-    ~AIMORouter();
-    
-    //bool route(const String message);
-    
-    bool routeMidi (const String address, const MidiMessage message);
-    
-    void addDestination(VirtualMidiController* destination);
-
-    
-private:
-    AIMORouter();
-    static AIMORouter* pInstance;
-    
-    Array<VirtualMidiController*> registeredDestinations;
-    OwnedArray<RoutableMidiOutput> midiOutputs;
+    RoutableMidiInput();
+    ~RoutableMidiInput();
     
 };
 
-#endif /* AIMORouter_hpp */
+#endif /* RoutableMidiInput_hpp */
