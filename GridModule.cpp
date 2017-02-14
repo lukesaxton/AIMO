@@ -16,7 +16,7 @@ namespace IntervalSpacings
 
     //MODES
     const int Aeolian[] = {0,2,3,4,7,8,10,-1};
-    const int Doriane[] = {0,2,3,5,7,9,10,-1};
+    const int Dorian[] = {0,2,3,5,7,9,10,-1};
     const int Ionian[] = {0,2,4,5,7,9,11,-1};
     const int Locrian[] = {0,1,3,5,6,8,10,-1};
     const int Lydian[] = {0,1,4,6,7,9,11,-1};
@@ -38,7 +38,7 @@ namespace IntervalSpacings
     const int HarmonicMinor[] = {0,2,3,5,7,8,11,-1};
     const int Hirajoshi[] = {0,2,3,7,8,-1};
     const int HungarianMinor[] = {0,2,3,6,7,8,11,-1};
-    const int Major[] = {0,2,4,5,7,9,-1};
+    const int Major[] = {0,2,4,5,7,9, 11,-1};
     const int MajorBebop[] = {0,2,4,5,7,8,9,11,-1};
     const int MajorLocran[] = {0,2,4,5,6,8,10,-1};
     const int MajorPentatonic[] = {0,2,4,7,9,-1};
@@ -276,7 +276,6 @@ void GridModule::setScale(const int newScale)
                 while (IntervalSpacings::Major[index] != -1)
                 {
                     foundScale.add(IntervalSpacings::Major[index]);
-                    DBG(foundScale.getLast());
                     index++;
                 }
                 break;
@@ -284,7 +283,6 @@ void GridModule::setScale(const int newScale)
                 while (IntervalSpacings::NaturalMinor[index] != -1)
                 {
                     foundScale.add(IntervalSpacings::NaturalMinor[index]);
-                    DBG(foundScale.getLast());
                     index++;
                 }
                 break;
@@ -292,7 +290,48 @@ void GridModule::setScale(const int newScale)
                 while (IntervalSpacings::HarmonicMinor[index] != -1)
                 {
                     foundScale.add(IntervalSpacings::HarmonicMinor[index]);
-                    DBG(foundScale.getLast());
+                    index++;
+                }
+                break;
+            case MelodicMinor:
+                while (IntervalSpacings::MelodicMinor[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::MelodicMinor[index]);
+                    index++;
+                }
+                break;
+            case HarmonicMajor:
+                while (IntervalSpacings::HarmonicMajor[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::HarmonicMajor[index]);
+                    index++;
+                }
+                break;
+            case Blues:
+                while (IntervalSpacings::Blues[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Blues[index]);
+                    index++;
+                }
+                break;
+            case MajorPentatonic:
+                while (IntervalSpacings::MajorPentatonic[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::MajorPentatonic[index]);
+                    index++;
+                }
+                break;
+            case MinorPentatonic:
+                while (IntervalSpacings::MinorPentatonic[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::MinorPentatonic[index]);
+                    index++;
+                }
+                break;
+            case Chromatic:
+                while (IntervalSpacings::Chromatic[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Chromatic[index]);
                     index++;
                 }
                 break;
@@ -300,7 +339,174 @@ void GridModule::setScale(const int newScale)
                 while (IntervalSpacings::HungarianMinor[index] != -1)
                 {
                     foundScale.add(IntervalSpacings::HungarianMinor[index]);
-                    DBG(foundScale.getLast());
+                    index++;
+                }
+                break;
+            case Aeolian:
+                while (IntervalSpacings::Aeolian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Aeolian[index]);
+                    index++;
+                }
+                break;
+            case Dorian:
+                while (IntervalSpacings::Dorian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Dorian[index]);
+                    index++;
+                }
+                break;
+            case Ionian:
+                while (IntervalSpacings::Ionian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Ionian[index]);
+                    index++;
+                }
+                break;
+            case Locrian:
+                while (IntervalSpacings::Locrian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Locrian[index]);
+                    index++;
+                }
+                break;
+            case Lydian:
+                while (IntervalSpacings::Lydian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Lydian[index]);
+                    index++;
+                }
+                break;
+            case Mixolydian:
+                while (IntervalSpacings::Mixolydian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Mixolydian[index]);
+                    index++;
+                }
+                break;
+            case Phrygian:
+                while (IntervalSpacings::Phrygian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Phrygian[index]);
+                    index++;
+                }
+                break;
+            case Acoustic:
+                while (IntervalSpacings::Acoustic[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Acoustic[index]);
+                    index++;
+                }
+                break;
+            case Algerian:
+                while (IntervalSpacings::Algerian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Algerian[index]);
+                    index++;
+                }
+                break;
+            case Augmented:
+                while (IntervalSpacings::Augmented[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Augmented[index]);
+                    index++;
+                }
+                break;
+            case BebopDominant:
+                while (IntervalSpacings::BebopDominant[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::BebopDominant[index]);
+                    index++;
+                }
+                break;
+            case DoubleHarmonic:
+                while (IntervalSpacings::DoubleHarmonic[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::DoubleHarmonic[index]);
+                    index++;
+                }
+                break;
+            case Enigmatic:
+                while (IntervalSpacings::Enigmatic[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Enigmatic[index]);
+                    index++;
+                }
+                break;
+            case Gypsy:
+                while (IntervalSpacings::Gypsy[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Gypsy[index]);
+                    index++;
+                }
+                break;
+            case HalfDiminished:
+                while (IntervalSpacings::HalfDiminished[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::HalfDiminished[index]);
+                    index++;
+                }
+                break;
+            case Hirajoshi:
+                while (IntervalSpacings::Hirajoshi[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Hirajoshi[index]);
+                    index++;
+                }
+                break;
+            case MajorBebop:
+                while (IntervalSpacings::MajorBebop[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::MajorBebop[index]);
+                    index++;
+                }
+                break;
+            case MajorLocran:
+                while (IntervalSpacings::MajorLocran[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::MajorLocran[index]);
+                    index++;
+                }
+                break;
+            case NeopolitanMajor:
+                while (IntervalSpacings::NeopolitanMajor[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::NeopolitanMajor[index]);
+                    index++;
+                }
+                break;
+            case NeopolitanMinor:
+                while (IntervalSpacings::NeopolitanMinor[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::NeopolitanMinor[index]);
+                    index++;
+                }
+                break;
+            case Persian:
+                while (IntervalSpacings::Persian[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Persian[index]);
+                    index++;
+                }
+                break;
+            case PhrygianDominant:
+                while (IntervalSpacings::PhrygianDominant[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::PhrygianDominant[index]);
+                    index++;
+                }
+                break;
+            case Tritone:
+                while (IntervalSpacings::Tritone[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::Tritone[index]);
+                    index++;
+                }
+                break;
+            case WholeTone:
+                while (IntervalSpacings::WholeTone[index] != -1)
+                {
+                    foundScale.add(IntervalSpacings::WholeTone[index]);
                     index++;
                 }
                 break;
@@ -318,16 +524,23 @@ void GridModule::setScale(const int newScale)
             {
                 int newNote = rootNote + 12*currentOctave + foundScale.getUnchecked(positionInScale);
                 noteMappings.set(i, newNote);
-                DBG(newNote);
                 
                 positionInScale++;
+                
+                if (i+1 < buttons.size())
+                {
+                    buttons[i+1]->setButtonHighlight(false);
+                }
                 
                 if (positionInScale >= foundScale.size())
                 {
                     positionInScale = 0;
                     currentOctave++;
+                    if (i+1 < buttons.size())
+                    {
+                        buttons[i+1]->setButtonHighlight(true);
+                    }
                 }
-                
             }
         }
     }

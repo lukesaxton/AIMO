@@ -21,7 +21,38 @@ public:
         Major = 0,
         NaturalMinor,
         HarmonicMinor,
+        MelodicMinor,
+        HarmonicMajor,
+        Blues,
+        MajorPentatonic,
+        MinorPentatonic,
+        Chromatic,
         Hungarian,
+        Aeolian,
+        Dorian,
+        Ionian,
+        Locrian,
+        Lydian,
+        Mixolydian,
+        Phrygian,
+        PhrygianDominant,
+        Acoustic,
+        Algerian,
+        Augmented,
+        BebopDominant,
+        DoubleHarmonic,
+        Enigmatic,
+        Gypsy,
+        HalfDiminished,
+        Hirajoshi,
+        MajorBebop,
+        MajorLocran,
+        NeopolitanMajor,
+        NeopolitanMinor,
+        Persian,
+        Tritone,
+        WholeTone,
+        
         FINAL_SCALE
     };
     
@@ -41,28 +72,19 @@ public:
             float padding = getWidth()*0.0375;
             g.setColour(Colours::darkgrey);
             g.drawRect(padding, padding, getWidth()-1.5*padding, getHeight() -1.5*padding);
-            
-            switch (buttonState)
-            {
-                case Off:
-                    buttonColour = Colours::slategrey;
-                    break;
-                case On:
-                    buttonColour = Colours::whitesmoke;
-                    break;
-                case HighlightOn:
-                    buttonColour = Colours::orange;
-                    break;
-                case HighlightOff:
-                    buttonColour = Colours::chocolate;
-                    break;
-            }
-            
+    
+
             if (buttonState == On)
             {
                 buttonColour = Colours::whitesmoke;
             }
-            else if (buttonState == HighlightOn)
+            else
+            {
+                buttonColour = Colours::slategrey;
+
+            }
+            
+            if (buttonHighlight)
             {
                 buttonColour = buttonColour.brighter();
             }
@@ -74,15 +96,25 @@ public:
         }
         void resized() override{}
         
-        void setButtonState(const int newState)
+        void setButtonState(const bool newState)
         {
             buttonState = newState;
             triggerAsyncUpdate();
         }
         
+        void setButtonHighlight(const bool isHighlighted)
+        {
+            if (isHighlighted != buttonHighlight)
+            {
+                buttonHighlight = isHighlighted;
+                triggerAsyncUpdate();
+            }
+        }
+        
        
     private:
-        int buttonState = 0;
+        bool buttonState = 0;
+        bool buttonHighlight = 0;
         Colour buttonColour;
     };
     
@@ -105,7 +137,37 @@ public:
             scaleBox.addItem("Major", Scale::Major + 1);
             scaleBox.addItem("Minor", Scale::NaturalMinor + 1);
             scaleBox.addItem("Harmonic Minor", Scale::HarmonicMinor + 1);
+            scaleBox.addItem("Melodic Minor", Scale::MelodicMinor + 1);
+            scaleBox.addItem("Blues", Scale::Blues + 1);
+            scaleBox.addItem("Major Pentatonic", Scale::MajorPentatonic + 1);
+            scaleBox.addItem("Minor Pentatonic", Scale::MinorPentatonic + 1);
+            scaleBox.addItem("Chromatic", Scale::Chromatic + 1);
             scaleBox.addItem("Hungarian", Scale::Hungarian + 1);
+            scaleBox.addItem("Aeolian", Scale::Aeolian + 1);
+            scaleBox.addItem("Dorian", Scale::Dorian + 1);
+            scaleBox.addItem("Ionian", Scale::Ionian + 1);
+            scaleBox.addItem("Locrian", Scale::Locrian + 1);
+            scaleBox.addItem("Lydian", Scale::Lydian + 1);
+            scaleBox.addItem("Mixolydian", Scale::Mixolydian + 1);
+            scaleBox.addItem("Phrygian", Scale::Phrygian + 1);
+            scaleBox.addItem("Phrygian Dominant", Scale::PhrygianDominant + 1);
+            scaleBox.addItem("Acoustic", Scale::Acoustic + 1);
+            scaleBox.addItem("Algerian", Scale::Augmented + 1);
+            scaleBox.addItem("Bebop Dominant", Scale::BebopDominant + 1);
+            scaleBox.addItem("Double Harmonic", Scale::DoubleHarmonic + 1);
+            scaleBox.addItem("Enigmatic", Scale::Enigmatic + 1);
+            scaleBox.addItem("Gypsy", Scale::Gypsy + 1);
+            scaleBox.addItem("Half Diminished", Scale::HalfDiminished + 1);
+            scaleBox.addItem("Hirajoshi", Scale::Hirajoshi + 1);
+            scaleBox.addItem("Major Bebop", Scale::MajorBebop + 1);
+            scaleBox.addItem("Major Locran", Scale::MajorLocran + 1);
+            scaleBox.addItem("Neopolitan Major", Scale::NeopolitanMajor + 1);
+            scaleBox.addItem("Neopolitan Minor", Scale::NeopolitanMinor + 1);
+            scaleBox.addItem("Double Harmonic", Scale::DoubleHarmonic + 1);
+            scaleBox.addItem("Persian", Scale::Persian + 1);
+            scaleBox.addItem("Tritone", Scale::Tritone + 1);
+            scaleBox.addItem("Whole Tone", Scale::WholeTone + 1);
+            
             scaleBox.setSelectedId(grid->getScale()+1, dontSendNotification);
             scaleBox.addListener(this);
             addAndMakeVisible(&scaleBox);
@@ -165,7 +227,7 @@ private:
     String mapOut;
     Rectangle<int> buttonBoundingBox;
     int64 timeSinceLastMessage = 0;
-    int rootNote = 48;
+    int rootNote = 24;
     int currentScale;
     Array<int> noteMappings;
 };
