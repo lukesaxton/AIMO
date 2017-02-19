@@ -15,7 +15,6 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "VirtualMidiController.hpp"
-#include "MonomeServer.h"
 #include "KTMHandController.hpp"
 #include "RoutableMidiInput.hpp"
 #include "AIMOInputManager.hpp"
@@ -98,8 +97,6 @@ private:
     //==============================================================================
     
     VirtualMidiController controllerOne;
-    MonomeServer monomeServer;
-    KTMHandController kTMController;
     AIMOInputManager inputManager;
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MainContentComponent)

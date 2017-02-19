@@ -24,7 +24,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "RoutableMidiInput.hpp"
 #include "KTMHandController.hpp"
-#include "MonomeServer.h"
+#include "MonomeInput.hpp"
 
 class AIMOInputManager : public Component
 {
@@ -38,7 +38,9 @@ public:
     
 private:
     OwnedArray<RoutableMidiInput> midiInputs;
+    KTMHandController kTMController;
+    MonomeInput monomeInput;
     
-};
+    };
 
 #endif /* AIMOInputManager_hpp */

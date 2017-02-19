@@ -38,10 +38,15 @@ Monome::~Monome()
 {
     HighResolutionTimer::stopTimer();
     
-    OSCMessage lightsOff(monomeData.prefix + "/grid/led/all");
-    lightsOff.addInt32(0);
     
-    monomeSend.send(lightsOff);
+    if (deviceConnected)
+    {
+        OSCMessage lightsOff(monomeData.prefix + "/grid/led/all");
+        lightsOff.addInt32(0);
+        
+        monomeSend.send(lightsOff);
+    }
+   
 }
 
 
@@ -53,6 +58,8 @@ bool Monome::connectToDevice(MonomeData deviceInfo)
     
     if (monomeReceive.connect(MONOME_RECEIVE) && monomeSend.connect(monomeData.host, monomeData.port))
     {
+        deviceConnected = true;
+        
         OSCMessage setPrefix("/sys/prefix");
         monomeData.prefix = "/aimo";
         setPrefix.addString(monomeData.prefix);
@@ -248,7 +255,6 @@ void Monome::setLight(const int x, const int y, const bool state)
         foregroundMask[y] = foregroundMask[y] & !int32(pow(2, x));
     }
     
-    //monomeSend.send(setLight);
 }
 
 void Monome::setMask(const int bitmaskArray[8], bool makeForeground)

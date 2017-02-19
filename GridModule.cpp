@@ -88,6 +88,7 @@ GridModule::GridModule(const int gridSize)
     }
     
     setScale(Scale::Major);
+    buttons[0]->setButtonHighlight(true);
     
     mapOut = "/AIMO Out";
     setInterceptsMouseClicks(true, true);

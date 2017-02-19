@@ -47,6 +47,9 @@ bool VirtualMidiController::routeMidi (const String address, const MidiMessage m
         grid->routeMidi(address.fromFirstOccurrenceOf("grid", false, true), message);
         return true;
     }
+    else{
+        jassertfalse;
+    }
     
     return false;
 }

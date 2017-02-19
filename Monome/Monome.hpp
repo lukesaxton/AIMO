@@ -180,7 +180,7 @@ private:
     OSCReceiver monomeReceive;
     OSCSender monomeSend;
     
-    bool deviceConnected;
+    bool deviceConnected = false;
     
     Time time;
     
