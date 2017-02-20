@@ -24,22 +24,36 @@
 #include "AIMOInput.hpp"
 
 #define NUM_KTM_BUTTONS 12
-
+#define NUM_RGB_LEDS 15
 
 
 class KTMHandController : public OSCReceiver::Listener<>,
-                          public AIMOInput
+                          public AIMOInput,
+                          public Timer
 {
 public:
     KTMHandController();
     ~KTMHandController();
-    void oscMessageReceived (const OSCMessage& message);
+    void oscMessageReceived (const OSCMessage& message) override;
     
     bool connect();
     
+    void timerCallback() override;
+    
+    void setButtonLED(const int forButton, const bool state);
+    
+    void setLEDColour(const int led, const uint8 r, const uint8 g, const uint8 b);
+    
+    void refreshColourLEDs();
 private:
     OSCReceiver controllerReceive;
+    
+    OSCSender controllerSend;
     int stateGrid[NUM_KTM_BUTTONS];
+    
+    MemoryBlock rgbBlob;
+    
+    OwnedArray<Colour> ledColours;
 };
 
 #endif /* KTMHandController_hpp */
