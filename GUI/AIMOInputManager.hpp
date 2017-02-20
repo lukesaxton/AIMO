@@ -39,7 +39,7 @@ public:
 private:
     OwnedArray<RoutableMidiInput> midiInputs;
     KTMHandController kTMController;
-    MonomeInput monomeInput;
+    //MonomeInput monomeInput;
     
     };
 
