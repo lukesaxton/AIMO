@@ -29,6 +29,9 @@ AIMORouter::AIMORouter()
 {
     midiOutputs.add(new RoutableMidiOutput());
     midiOutputs.getLast()->createNewDevice("AIMO Out");
+    
+    midiOutputs.add(new RoutableMidiOutput());
+    midiOutputs.getLast()->createNewDevice("AIMO Control");
 }
 
 AIMORouter::~AIMORouter()

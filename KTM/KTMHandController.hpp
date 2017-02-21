@@ -29,9 +29,34 @@
 
 class KTMHandController : public OSCReceiver::Listener<>,
                           public AIMOInput,
-                          public Timer
+                          public Timer,
+                          public Component
 {
 public:
+    class ColouredBox : public Component
+    {
+    public:
+        ColouredBox(){ boxColour = Colours::black; }
+        ~ColouredBox(){}
+        void paint(Graphics& g) override
+        {
+            g.setColour(boxColour);
+            g.fillRect(float(getWidth()*0.05), getHeight()*0.05, getWidth()*0.9, getHeight()*0.9);
+        }
+        void resized() override
+        {
+            
+        }
+        void setColour(const Colour newColour)
+        {
+            boxColour = newColour;
+            repaint();
+        }
+    private:
+        Colour boxColour;
+    };
+    
+    
     KTMHandController();
     ~KTMHandController();
     void oscMessageReceived (const OSCMessage& message) override;
@@ -45,6 +70,13 @@ public:
     void setLEDColour(const int led, const uint8 r, const uint8 g, const uint8 b);
     
     void refreshColourLEDs();
+    
+    void setSceneLEDs(const Colour newColour);
+    
+    void resized() override;
+    void paint(Graphics& g) override;
+    void mouseDown (const MouseEvent& event) override;
+    
 private:
     OSCReceiver controllerReceive;
     
@@ -54,6 +86,15 @@ private:
     MemoryBlock rgbBlob;
     
     OwnedArray<Colour> ledColours;
+    OwnedArray<ColouredBox> ledDisplayBoxes;
+    OwnedArray<ColouredBox> buttonDisplayBoxes;
+
+    
+    Rectangle<int> mainBox;
+    Rectangle<int> buttonRows[4];
+    
+    
+    
 };
 
 #endif /* KTMHandController_hpp */

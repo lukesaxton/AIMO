@@ -93,6 +93,7 @@ GridModule::GridModule(const int gridSize)
     mapOut = "/AIMO Out";
     setInterceptsMouseClicks(true, true);
     
+    setInputType(InputType::AllKeys);
     //buttonBoundingBox.setBounds(0, 0, getWidth(), getHeight());
 }
 

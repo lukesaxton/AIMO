@@ -40,6 +40,8 @@ public:
     void addDestination(VirtualMidiController* destination);
 
     bool mapMidi (const String address, const String source, const MidiMessage message);
+    
+    
 private:
     AIMORouter();
     static AIMORouter* pInstance;

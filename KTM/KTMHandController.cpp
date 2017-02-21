@@ -27,6 +27,8 @@
 
 KTMHandController::KTMHandController()
 {
+    setInterceptsMouseClicks(false, true);
+    
     controllerReceive.addListener(this);
     connect();
     
@@ -34,15 +36,26 @@ KTMHandController::KTMHandController()
     {
         stateGrid[i] = 0;
         setKeyMapping("/controllerOne/grid/key", i);
+        
+        buttonDisplayBoxes.add(new ColouredBox());
+        buttonDisplayBoxes.getLast()->setColour(Colours::darkred);
+        buttonDisplayBoxes.getLast()->addMouseListener(this, true);
+        addAndMakeVisible(buttonDisplayBoxes.getLast());
+        
         setButtonLED(i, false);
     }
+
     
     for (int i = 0; i < NUM_RGB_LEDS; i++)
     {
-        ledColours.add(new Colour(Colours::black));
+        ledColours.add(new Colour(Colours::red));
+        ledDisplayBoxes.add(new ColouredBox());
+        ledDisplayBoxes.getLast()->addMouseListener(this, true);
+        addAndMakeVisible(ledDisplayBoxes.getLast());
+        ledDisplayBoxes.getLast()->setColour(*ledColours.getLast());
     }
     
-    refreshColourLEDs();
+    setSceneLEDs(Colours::red);
     
     startTimer(50);
 }
@@ -122,6 +135,15 @@ void KTMHandController::setButtonLED(const int forButton, const bool state)
         OSCMessage message("/outputs/digital/" + String(forButton+2));
         message.addInt32(state);
         controllerSend.send(message);
+        
+        if (state)
+        {
+            buttonDisplayBoxes[forButton]->setColour(Colours::red);
+        }
+        else
+        {
+            buttonDisplayBoxes[forButton]->setColour(Colours::darkred);
+        }
     }
 }
 
@@ -130,6 +152,7 @@ void KTMHandController::setLEDColour(const int led, const uint8 r, const uint8 g
     if (led > -1 && led < NUM_RGB_LEDS)
     {
         *ledColours[led] = Colour::fromRGB(r, g, b);
+        ledDisplayBoxes[led]->setColour(*ledColours[led]);
         refreshColourLEDs();
     }
 }
@@ -141,18 +164,77 @@ void KTMHandController::refreshColourLEDs()
     int cR, cG, cB;
     for (int i = 0; i < ledColours.size(); i++)
     {
-        cR = ledColours[i]->getRed();
-        cG = ledColours[i]->getGreen();
-        cB = ledColours[i]->getBlue();
+        cR = ledColours[i]->getRed() * 0.1;
+        cG = ledColours[i]->getGreen() * 0.1;
+        cB = ledColours[i]->getBlue() * 0.1;
         
         rgbBlob.append(&cR, 1);
         rgbBlob.append(&cG, 1);
         rgbBlob.append(&cB, 1);
+        
+        ledDisplayBoxes[i]->setColour(*ledColours[i]);
     }
     
     OSCMessage rgbMessage("/outputs/rgb/1");
     rgbMessage.addBlob(rgbBlob);
     controllerSend.send(rgbMessage);
+    
+}
+
+void KTMHandController::setSceneLEDs(const Colour newColour)
+{
+    *ledColours[12] = newColour;
+    *ledColours[13] = newColour;
+    *ledColours[14] = newColour;
+    
+    refreshColourLEDs();
+}
+
+void KTMHandController::resized()
+{
+    float x = getWidth();
+    float y = getHeight();
+    
+    if (x<=y)
+    {
+        mainBox.setBounds(0,0, x-10, x-10);
+    }
+    else
+    {
+        mainBox.setBounds(0,0, y-10, y-10);
+    }
+    
+    mainBox.setCentre(x/2.0, y/2.0);
+    
+    buttonRows[0].setBounds(mainBox.getX(), mainBox.getY(), mainBox.getWidth()*0.2, mainBox.getWidth());
+    for (int i = 1; i < 4; i++)
+    {
+        buttonRows[i].setBounds(buttonRows[i-1].getX() + buttonRows[0].getWidth(), buttonRows[0].getY(), buttonRows[0].getWidth(), buttonRows[0].getHeight());
+    }
+    
+    for (int i = 0; i < NUM_KTM_BUTTONS; i++)
+    {
+        ledDisplayBoxes[i]->setBounds(buttonRows[i%4].withHeight((mainBox.getHeight()*0.05)+1).translated(0, (mainBox.getHeight()*0.25)* float(i/4)));
+        
+        buttonDisplayBoxes[i]->setBounds(ledDisplayBoxes[i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[i]->getWidth()));
+    }
+    ledDisplayBoxes[12]->setBounds(buttonRows[3].getRight(), mainBox.getY(), mainBox.getWidth()/15.0, mainBox.getHeight()*0.05);
+    ledDisplayBoxes[13]->setBounds(ledDisplayBoxes[12]->getBounds().translated(mainBox.getWidth()/15.0, 0));
+    ledDisplayBoxes[14]->setBounds(ledDisplayBoxes[13]->getBounds().translated(mainBox.getWidth()/15.0, 0));
+
 }
 
 
+void KTMHandController::paint(Graphics& g)
+{
+    g.fillAll(Colours::darkslategrey);
+    
+    g.setColour(Colours::darkgrey);
+    g.fillRect(mainBox);
+}
+
+
+void KTMHandController::mouseDown (const MouseEvent& event)
+{
+    DBG("click");
+}
