@@ -35,7 +35,7 @@ KTMHandController::KTMHandController()
     for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
         stateGrid[i] = 0;
-        setKeyMapping("/controllerOne/grid/key", i);
+        setKeyMapping("/controllerOne/Grid/key", i);
         
         buttonDisplayBoxes.add(new ColouredBox());
         buttonDisplayBoxes.getLast()->setColour(Colours::darkred);
@@ -57,7 +57,10 @@ KTMHandController::KTMHandController()
     
     setSceneLEDs(Colours::red);
     
-    startTimer(50);
+    //startTimer(50);
+    
+    setAddress("/KTM/");
+    AIMORouter::Instance()->addDestination(this);
 }
 
 KTMHandController::~KTMHandController()
@@ -80,6 +83,7 @@ bool KTMHandController::connect()
    
 }
 
+
 void KTMHandController::oscMessageReceived (const OSCMessage& message)
 {
     //DBG(message.getAddressPattern().toString() + " ARGS: " + String(message.size()));
@@ -95,23 +99,7 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
         {
             if (curArg->isInt32())
             {
-                if (stateGrid[i] != curArg->getInt32())
-                {
-                    stateGrid[i] = curArg->getInt32();
-                    
-                    setButtonLED(i, stateGrid[i]);
-                    
-                    if (stateGrid[i] == 1)
-                    {
-                        DBG("KTMHC Button On: " + String(i));
-                        AIMORouter::Instance()->routeMidi(getKeyMapping(i), MidiMessage::noteOn(1, i, uint8(110)));
-                    }
-                    else if (stateGrid[i] == 0)
-                    {
-                        DBG("KTMHC Button Off: " + String(i));
-                        AIMORouter::Instance()->routeMidi(getKeyMapping(i), MidiMessage::noteOff(1, i));
-                    }
-                }
+                pressButton(i, curArg->getInt32());
             }
             curArg++;
             
@@ -120,6 +108,63 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
     }
   
 }
+
+void KTMHandController::setMapOut (const String newMapOut)
+{
+    
+}
+
+
+bool KTMHandController::routeMidi (const String address, const MidiMessage message)
+{
+    if (address == getAddress() + "key")
+    {
+        if (message.isNoteOnOrOff())
+        {
+            return pressButton(message.getNoteNumber(), message.isNoteOn());
+           
+        }
+        else
+        {
+            jassertfalse;
+        }
+        return false;
+        
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool KTMHandController::pressButton(const int buttonID, const bool state)
+{
+    if (buttonID > -1 && buttonID < NUM_KTM_BUTTONS)
+    {
+        if (stateGrid[buttonID] != state)
+        {
+            stateGrid[buttonID] = state;
+            
+            setButtonLED(buttonID, stateGrid[buttonID]);
+            
+            if (stateGrid[buttonID] == 1)
+            {
+                DBG("KTMHC Button On: " + String(buttonID));
+                AIMORouter::Instance()->routeMidi(getKeyMapping(buttonID), MidiMessage::noteOn(1, buttonID, uint8(110)));
+            }
+            else if (stateGrid[buttonID] == 0)
+            {
+                DBG("KTMHC Button Off: " + String(buttonID));
+                AIMORouter::Instance()->routeMidi(getKeyMapping(buttonID), MidiMessage::noteOff(1, buttonID));
+            }
+            return true;
+        }
+        
+    }
+    
+    return false;
+}
+
 
 void KTMHandController::timerCallback() //garbage collection for when a button release callback isn't received
 {

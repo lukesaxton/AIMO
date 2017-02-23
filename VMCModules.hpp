@@ -29,7 +29,17 @@ public:
     virtual ~VMCModule() {};
     virtual void setMapOut (const String newMapOut) = 0;
     virtual bool routeMidi (const String address, const MidiMessage message) = 0;
+    virtual String getAddress() {return address;}
+    virtual void setAddress(const String newAddress) { address = newAddress; }
+private:
+    String address;
+};
 
+class VMC_OSCModule{
+public:
+    virtual ~VMC_OSCModule() {};
+    virtual void setOSCMapOut() = 0;
+    virtual bool routeOSC (const String, const OSCMessage) = 0;
 private:
 };
 

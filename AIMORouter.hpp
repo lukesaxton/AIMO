@@ -22,9 +22,9 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-
 class VirtualMidiController;
 class RoutableMidiOutput;
+class VMCModule;
 
 class AIMORouter : public DeletedAtShutdown
 {
@@ -37,7 +37,7 @@ public:
     
     bool routeMidi (const String address, const MidiMessage message);
     
-    void addDestination(VirtualMidiController* destination);
+    void addDestination(VMCModule* destination);
 
     bool mapMidi (const String address, const String source, const MidiMessage message);
     
@@ -46,7 +46,7 @@ private:
     AIMORouter();
     static AIMORouter* pInstance;
     
-    Array<VirtualMidiController*> registeredDestinations;
+    Array<VMCModule*> registeredDestinations;
     OwnedArray<RoutableMidiOutput> midiOutputs;
     
 };

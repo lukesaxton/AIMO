@@ -25,25 +25,25 @@
 
 //Main functionality class of app, takes various input in the form of addressed midi/OSC data
 
-class VirtualMidiController : public Component
+class VirtualMidiController : public Component,
+                              public VMCModule
 {
 public:
     
     VirtualMidiController(String _ID);
     ~VirtualMidiController();
     
-    bool routeMidi (const String address, const MidiMessage message);
+    void setMapOut (const String newMapOut) override {}
+    bool routeMidi (const String address, const MidiMessage message) override;
     bool mapMidi (const String address, const String source, const MidiMessage message);
     
     void paint(Graphics& g) override;
     void resized() override;
     
-    const String getID();
 private:
     ScopedPointer<GridModule> grid = nullptr;
     ScopedPointer<KeyboardModule> keyboard;
     
-    String ID;
 };
 
 

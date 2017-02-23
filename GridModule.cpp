@@ -95,6 +95,8 @@ GridModule::GridModule(const int gridSize)
     
     setInputType(InputType::AllKeys);
     //buttonBoundingBox.setBounds(0, 0, getWidth(), getHeight());
+    
+    setAddress("/Grid/");
 }
 
 GridModule::~GridModule()
@@ -111,7 +113,7 @@ void GridModule::setMapOut (const String newMapOut)
 bool GridModule::routeMidi (const String address, const MidiMessage message)
 
 {
-    if (address.contains("key"))
+    if (address.contains(getAddress() + "key"))
     {
         MidiMessage mappedMessage(message);
         int buttonPressed = -1;
@@ -276,7 +278,7 @@ void GridModule::mouseDown(const MouseEvent &event)
             {
                 if (currentInputType == AllKeys || currentInputType == Grid) //for modes where route midi is accepting notes 0-63
                 {
-                    routeMidi("key", MidiMessage::noteOn(1, i, uint8(110)));
+                    routeMidi(getAddress()+"key", MidiMessage::noteOn(1, i, uint8(110)));
                 }
                 else if (currentInputType == WhiteKeys) //where routeMidi is only accepting white notes
                 {
@@ -284,7 +286,7 @@ void GridModule::mouseDown(const MouseEvent &event)
                     {
                         if (KeyMasks::WhiteNoteMask[search] == i)
                         {
-                            routeMidi("key", MidiMessage::noteOn(1, search, uint8(110)));
+                            routeMidi(getAddress()+"key", MidiMessage::noteOn(1, search, uint8(110)));
                         }
                     }
                 }
@@ -306,7 +308,7 @@ void GridModule::mouseUp(const MouseEvent &event)
         {
             if (currentInputType == AllKeys || currentInputType == Grid)
             {
-                routeMidi("key", MidiMessage::noteOff(1, i, uint8(110)));
+                routeMidi(getAddress()+"key", MidiMessage::noteOff(1, i, uint8(110)));
             }
             else if (currentInputType == WhiteKeys)
             {
@@ -314,7 +316,7 @@ void GridModule::mouseUp(const MouseEvent &event)
                 {
                     if (KeyMasks::WhiteNoteMask[search] == i)
                     {
-                        routeMidi("key", MidiMessage::noteOff(1, search, uint8(110)));
+                        routeMidi(getAddress()+"key", MidiMessage::noteOff(1, search, uint8(110)));
                     }
                 }
             }        }

@@ -26,12 +26,12 @@ VirtualMidiController::VirtualMidiController(String _ID)
     grid = new GridModule(64);
     addAndMakeVisible(grid);
     
-    ID = _ID;
-    
+    setAddress(_ID);
     //keyboard = new KeyboardModule();
     //addAndMakeVisible(keyboard);
     
     AIMORouter::Instance()->addDestination(this);
+    
 }
 
 VirtualMidiController::~VirtualMidiController()
@@ -42,9 +42,9 @@ VirtualMidiController::~VirtualMidiController()
 bool VirtualMidiController::routeMidi (const String address, const MidiMessage message)
 
 {
-    if (address.contains("grid"))
+    if (address.contains(grid->getAddress()))
     {
-        grid->routeMidi(address.fromFirstOccurrenceOf("grid", false, true), message);
+        grid->routeMidi(address.fromFirstOccurrenceOf(grid->getAddress(), true, true), message);
         return true;
     }
     else{
@@ -77,7 +77,3 @@ void VirtualMidiController::resized()
     //keyboard->setBounds(0, y, x, y);
 }
 
-const String VirtualMidiController::getID()
-{
-    return ID;
-}

@@ -20,7 +20,7 @@
 #include "AIMORouter.hpp"
 #include "VirtualMidiController.hpp"
 #include "RoutableMidiOutput.hpp"
-
+#include "VMCModules.hpp"
 
 AIMORouter* AIMORouter::pInstance = 0;
 
@@ -71,7 +71,7 @@ bool AIMORouter::routeMidi (const String address, const MidiMessage message)
     }
     for (int i = 0; i < registeredDestinations.size(); i++)
     {
-        curSearch = registeredDestinations[i]->getID();
+        curSearch = registeredDestinations[i]->getAddress();
         
         if (address.contains(curSearch) && curSearch != "")
         {
@@ -90,7 +90,7 @@ bool AIMORouter::routeMidi (const String address, const MidiMessage message)
     return false;
 }
 
-void AIMORouter::addDestination(VirtualMidiController* destination)
+void AIMORouter::addDestination(VMCModule* destination)
 {
     if(destination)
     {

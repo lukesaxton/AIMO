@@ -22,6 +22,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "AIMOInput.hpp"
+#include "VMCModules.hpp"
 
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
@@ -30,7 +31,8 @@
 class KTMHandController : public OSCReceiver::Listener<>,
                           public AIMOInput,
                           public Timer,
-                          public Component
+                          public Component,
+                          public VMCModule
 {
 public:
     class ColouredBox : public Component
@@ -61,6 +63,9 @@ public:
     ~KTMHandController();
     void oscMessageReceived (const OSCMessage& message) override;
     
+    void setMapOut (const String newMapOut) override;
+    bool routeMidi (const String address, const MidiMessage message) override;
+    
     bool connect();
     
     void timerCallback() override;
@@ -78,6 +83,8 @@ public:
     void mouseDown (const MouseEvent& event) override;
     
 private:
+    bool pressButton(const int buttonID, const bool state);
+    
     OSCReceiver controllerReceive;
     
     OSCSender controllerSend;

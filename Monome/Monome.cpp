@@ -46,7 +46,6 @@ Monome::~Monome()
         
         monomeSend.send(lightsOff);
     }
-   
 }
 
 

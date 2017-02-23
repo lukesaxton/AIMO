@@ -51,7 +51,7 @@ MonomeInput::MonomeInput()
     
     for (int i = 0; i < 128; i++)
     {
-        setKeyMapping("/controllerOne/grid/key", i);
+        setKeyMapping("/KTM/key", i);
     }
     
     monomeReceive.addListener(this);
