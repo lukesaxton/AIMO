@@ -39,8 +39,11 @@ class VMC_OSCModule{
 public:
     virtual ~VMC_OSCModule() {};
     virtual void setOSCMapOut() = 0;
-    virtual bool routeOSC (const String, const OSCMessage) = 0;
+    virtual bool routeOSC (const OSCMessage) = 0;
+    virtual String getOSCAddress() {return address;}
+    virtual void setOSCAddress(const String newAddress) { address = newAddress; }
 private:
+    String address;
 };
 
 class VMCMappableControl : public Component,

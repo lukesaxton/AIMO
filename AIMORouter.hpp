@@ -25,6 +25,8 @@
 class VirtualMidiController;
 class RoutableMidiOutput;
 class VMCModule;
+class VMC_OSCModule;
+
 
 class AIMORouter : public DeletedAtShutdown
 {
@@ -36,9 +38,12 @@ public:
     //bool route(const String message);
     
     bool routeMidi (const String address, const MidiMessage message);
+    bool routeOSC (const OSCMessage message);
+
     
     void addDestination(VMCModule* destination);
-
+    void addOSCDestination(VMC_OSCModule* destination);
+    
     bool mapMidi (const String address, const String source, const MidiMessage message);
     
     
@@ -47,6 +52,7 @@ private:
     static AIMORouter* pInstance;
     
     Array<VMCModule*> registeredDestinations;
+    Array<VMC_OSCModule*> registeredOSCDestinations;
     OwnedArray<RoutableMidiOutput> midiOutputs;
     
 };

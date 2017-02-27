@@ -48,19 +48,37 @@ KTMHandController::KTMHandController()
     
     for (int i = 0; i < NUM_RGB_LEDS; i++)
     {
-        ledColours.add(new Colour(Colours::red));
+        if (i/4 < 1)
+        {
+            ledColours.add(new Colour(Colours::red));
+        }
+        else if (i/4 > 1)
+        {
+            ledColours.add(new Colour(Colours::green));
+
+        }
+        else
+        {
+            ledColours.add(new Colour(Colours::yellow));
+
+        }
         ledDisplayBoxes.add(new ColouredBox());
         ledDisplayBoxes.getLast()->addMouseListener(this, true);
         addAndMakeVisible(ledDisplayBoxes.getLast());
         ledDisplayBoxes.getLast()->setColour(*ledColours.getLast());
+        
+       
     }
     
     setSceneLEDs(Colours::red);
     
-    //startTimer(50);
+    startTimer(50);
     
     setAddress("/KTM/");
+    setOSCAddress("/KTMOSC/");
     AIMORouter::Instance()->addDestination(this);
+    AIMORouter::Instance()->addOSCDestination(this);
+
 }
 
 KTMHandController::~KTMHandController()
@@ -102,8 +120,6 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
                 pressButton(i, curArg->getInt32());
             }
             curArg++;
-            
-            
         }
     }
   
@@ -137,6 +153,45 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
     }
 }
 
+void KTMHandController::setOSCMapOut()
+{
+    
+}
+
+bool KTMHandController::routeOSC (const OSCMessage message)
+{
+    if (message.getAddressPattern().toString().contains(getOSCAddress()+"lights"))
+    {
+        static int args[2];
+        bool valid = true;
+        
+        OSCArgument* curArg = message.begin();
+        
+        for (int i = 0; i < 2; i++)
+        {
+            if (curArg->isInt32())
+            {
+                args[i] = curArg->getInt32();
+            }
+            else
+            {
+                valid = false;
+                break;
+            }
+            curArg++;
+            
+        }
+        if (valid)
+        {
+            setLEDColour(args[0], args[1]);
+
+        }
+        
+    }
+    
+    return false;
+}
+
 bool KTMHandController::pressButton(const int buttonID, const bool state)
 {
     if (buttonID > -1 && buttonID < NUM_KTM_BUTTONS)
@@ -151,11 +206,21 @@ bool KTMHandController::pressButton(const int buttonID, const bool state)
             {
                 DBG("KTMHC Button On: " + String(buttonID));
                 AIMORouter::Instance()->routeMidi(getKeyMapping(buttonID), MidiMessage::noteOn(1, buttonID, uint8(110)));
+                OSCMessage lightsMessage(getOSCAddress()+"lights");
+                lightsMessage.addInt32(buttonID);
+                lightsMessage.addInt32(ledColours[buttonID]->withRotatedHue(0.5).getARGB());
+                
+                AIMORouter::Instance()->routeOSC(lightsMessage);
             }
             else if (stateGrid[buttonID] == 0)
             {
                 DBG("KTMHC Button Off: " + String(buttonID));
                 AIMORouter::Instance()->routeMidi(getKeyMapping(buttonID), MidiMessage::noteOff(1, buttonID));
+                OSCMessage lightsMessage(getOSCAddress()+"lights");
+                lightsMessage.addInt32(buttonID);
+                lightsMessage.addInt32(ledColours[buttonID]->withRotatedHue(0.5).getARGB());
+                
+                AIMORouter::Instance()->routeOSC(lightsMessage);
             }
             return true;
         }
@@ -200,7 +265,24 @@ void KTMHandController::setLEDColour(const int led, const uint8 r, const uint8 g
         ledDisplayBoxes[led]->setColour(*ledColours[led]);
         refreshColourLEDs();
     }
+    else
+    {
+        jassertfalse;
+    }
 }
+
+void KTMHandController::setLEDColour(const int led, const int ARGB)
+{
+    uint8 colours[4];
+    
+    colours[0] = (ARGB & 0x000000ff);
+    colours[1] = (ARGB & 0x0000ff00) >> 8;
+    colours[2] = (ARGB & 0x00ff0000) >> 16;
+    colours[3] = (ARGB & 0xff000000) >> 24;
+    
+    setLEDColour(led, colours[2], colours[1], colours[0]);
+}
+
 
 void KTMHandController::refreshColourLEDs()
 {

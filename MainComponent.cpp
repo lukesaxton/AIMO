@@ -32,7 +32,7 @@ public:
         setSize (1000, 480);
 
         // specify the number of input and output channels that we want to open
-        setAudioChannels (2, 2);
+        ///setAudioChannels (2, 2);
         
         addAndMakeVisible(inputManager);
         addAndMakeVisible(controllerOne);

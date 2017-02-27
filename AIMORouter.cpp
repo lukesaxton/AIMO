@@ -90,6 +90,31 @@ bool AIMORouter::routeMidi (const String address, const MidiMessage message)
     return false;
 }
 
+bool AIMORouter::routeOSC (const OSCMessage message)
+{
+    String curSearch;
+    
+    for (int i = 0; i < registeredOSCDestinations.size(); i++)
+    {
+        curSearch = registeredOSCDestinations[i]->getOSCAddress();
+        
+        if (message.getAddressPattern().toString().contains(curSearch) && curSearch != "")
+        {
+            //DBG("Externally Routed " + address);
+            
+            registeredOSCDestinations[i]->routeOSC(message);
+            return true;
+        }
+        
+    }
+    
+    DBG("Message not routed.. " + message.getAddressPattern().toString());
+    jassertfalse;
+    
+    return false;
+}
+
+
 void AIMORouter::addDestination(VMCModule* destination)
 {
     if(destination)
@@ -98,6 +123,16 @@ void AIMORouter::addDestination(VMCModule* destination)
 
     }
 }
+
+void AIMORouter::addOSCDestination(VMC_OSCModule* destination)
+{
+    if(destination)
+    {
+        registeredOSCDestinations.addIfNotAlreadyThere(destination);
+        
+    }
+}
+
 
 
 bool mapMidi (const String address, const String source, const MidiMessage message)

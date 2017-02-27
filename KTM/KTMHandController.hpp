@@ -27,12 +27,27 @@
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
 
+/* 
+    Class for communicating with the KTM Hand Controller
+ 
+    Addresses/commands:
+    MIDI:
+    'key' + note on/off message with note number 0-11 
+        - simulates a button press
+    
+    OSC:
+    'lights' + OSCMessage with 2 int args : LED Number, ARGB values
+        - sets the colour of that LED to RGB Value supplied.
+ 
+ */
+
 
 class KTMHandController : public OSCReceiver::Listener<>,
                           public AIMOInput,
                           public Timer,
                           public Component,
-                          public VMCModule
+                          public VMCModule,
+                          public VMC_OSCModule
 {
 public:
     class ColouredBox : public Component
@@ -66,6 +81,10 @@ public:
     void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
     
+    void setOSCMapOut() override;
+    bool routeOSC (const OSCMessage) override;
+    
+    
     bool connect();
     
     void timerCallback() override;
@@ -73,6 +92,7 @@ public:
     void setButtonLED(const int forButton, const bool state);
     
     void setLEDColour(const int led, const uint8 r, const uint8 g, const uint8 b);
+    void setLEDColour(const int led, const int ARGB);
     
     void refreshColourLEDs();
     

@@ -68,11 +68,10 @@ void RoutableMidiInput::handleIncomingMidiMessage (MidiInput* source, const Midi
         }
         
         
-        AIMORouter::Instance()->routeMidi("/controllerOne/grid/key/", message);
+        AIMORouter::Instance()->routeMidi("/controllerOne/Grid/key/", message);
         
     }
 }
-
 
 void RoutableMidiInput::paint(Graphics& g)
 {
