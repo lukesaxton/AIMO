@@ -46,31 +46,26 @@ private:
     String address;
 };
 
-class VMCMappableControl : public Component,
-                           public AsyncUpdater
+class VMCAsyncControl : public Component,
+                        public AsyncUpdater
 {
 public:
-    ~VMCMappableControl(){}
-    void setOutAddress (const String newAddress)
-    {
-        outAddress = newAddress;
-    }
-    const String getOutAddress()
-    {
-        return outAddress;
-
-    }
+    ~VMCAsyncControl(){}
     void paint (Graphics& g) override{}
     void resized () override{}
     void handleAsyncUpdate() override
     {
         repaint();
     }
-    
 private:
-    String outAddress;
 };
 
+class VMCMidiProcessor{
+public:
+    virtual ~VMCMidiProcessor() {};
+    virtual void processMidi (MidiMessage* message) = 0;
+private:
+};
 
 //standard
 class KeyboardModule : public VMCModule,

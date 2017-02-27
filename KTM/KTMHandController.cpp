@@ -35,12 +35,12 @@ KTMHandController::KTMHandController()
     for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
         stateGrid[i] = 0;
-        setKeyMapping("/controllerOne/Grid/key", i);
+        setKeyMapping("/AIMO Control/", i);
         
-        buttonDisplayBoxes.add(new ColouredBox());
-        buttonDisplayBoxes.getLast()->setColour(Colours::darkred);
-        buttonDisplayBoxes.getLast()->addMouseListener(this, true);
-        addAndMakeVisible(buttonDisplayBoxes.getLast());
+        buttonModules.add(new MidiButtonModule());
+        buttonModules.getLast()->setColour(Colours::red);
+        buttonModules.getLast()->addMouseListener(this, true);
+        addAndMakeVisible(buttonModules.getLast());
         
         setButtonLED(i, false);
     }
@@ -54,12 +54,12 @@ KTMHandController::KTMHandController()
         }
         else if (i/4 > 1)
         {
-            ledColours.add(new Colour(Colours::green));
+            ledColours.add(new Colour(Colours::yellow));
 
         }
         else
         {
-            ledColours.add(new Colour(Colours::yellow));
+            ledColours.add(new Colour(Colours::hotpink));
 
         }
         ledDisplayBoxes.add(new ColouredBox());
@@ -70,7 +70,7 @@ KTMHandController::KTMHandController()
        
     }
     
-    setSceneLEDs(Colours::red);
+    setSceneLEDs(Colours::blue);
     
     startTimer(50);
     
@@ -117,7 +117,21 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
         {
             if (curArg->isInt32())
             {
-                pressButton(i, curArg->getInt32());
+                //pressButton(i, curArg->getInt32());
+                if (curArg->getInt32() != stateGrid[i])
+                {
+                    stateGrid[i] = curArg->getInt32();
+                    if (stateGrid[i] == 1)
+                    {
+                        routeMidi(getAddress()+"key", MidiMessage::noteOn(1, i, uint8(110)));
+                    }
+                    else if (stateGrid[i] == 0)
+                    {
+                        routeMidi(getAddress()+"key", MidiMessage::noteOff(1, i));
+                    }
+                }
+                
+                
             }
             curArg++;
         }
@@ -137,20 +151,60 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
     {
         if (message.isNoteOnOrOff())
         {
-            return pressButton(message.getNoteNumber(), message.isNoteOn());
-           
+            int noteNumber = message.getNoteNumber();
+            if (noteNumber > -1 && noteNumber < NUM_KTM_BUTTONS)
+            {
+                bool prevState = buttonModules[noteNumber]->getButtonState();
+                MidiMessage mappedMessage(message);
+                buttonModules[message.getNoteNumber()]->processMidi(&mappedMessage);
+                
+                setButtonLED(noteNumber, buttonModules[noteNumber]->getButtonState());
+                
+                // when a button state changes
+                if (buttonModules[noteNumber]->getButtonState() != prevState)
+                {
+                    if (buttonModules[noteNumber]->getButtonState() == 1)
+                    {
+                        DBG("KTMHC Button On: " + String(noteNumber));
+                        AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 127));
+                    }
+                    else if (buttonModules[noteNumber]->getButtonState() == 0)
+                    {
+                        DBG("KTMHC Button Off: " + String(noteNumber));
+                        AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 0));
+                    }
+                }
+                
+                // Instant button press feedback
+                if (buttonModules[noteNumber]->getButtonState() == 1)
+                {
+                    OSCMessage lightsMessage(getOSCAddress()+"lights");
+                    lightsMessage.addInt32(noteNumber);
+                    lightsMessage.addInt32(ledColours[noteNumber]->withRotatedHue(0.5).getARGB());
+                    
+                    AIMORouter::Instance()->routeOSC(lightsMessage);
+                }
+                else if (buttonModules[noteNumber]->getButtonState() == 0)
+                {
+                    
+                    OSCMessage lightsMessage(getOSCAddress()+"lights");
+                    lightsMessage.addInt32(noteNumber);
+                    lightsMessage.addInt32(ledColours[noteNumber]->withRotatedHue(0.5).getARGB());
+                    
+                    AIMORouter::Instance()->routeOSC(lightsMessage);
+                }
+                
+               
+                return true;
+                
+            }
         }
         else
         {
             jassertfalse;
         }
-        return false;
-        
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 void KTMHandController::setOSCMapOut()
@@ -192,43 +246,6 @@ bool KTMHandController::routeOSC (const OSCMessage message)
     return false;
 }
 
-bool KTMHandController::pressButton(const int buttonID, const bool state)
-{
-    if (buttonID > -1 && buttonID < NUM_KTM_BUTTONS)
-    {
-        if (stateGrid[buttonID] != state)
-        {
-            stateGrid[buttonID] = state;
-            
-            setButtonLED(buttonID, stateGrid[buttonID]);
-            
-            if (stateGrid[buttonID] == 1)
-            {
-                DBG("KTMHC Button On: " + String(buttonID));
-                AIMORouter::Instance()->routeMidi(getKeyMapping(buttonID), MidiMessage::noteOn(1, buttonID, uint8(110)));
-                OSCMessage lightsMessage(getOSCAddress()+"lights");
-                lightsMessage.addInt32(buttonID);
-                lightsMessage.addInt32(ledColours[buttonID]->withRotatedHue(0.5).getARGB());
-                
-                AIMORouter::Instance()->routeOSC(lightsMessage);
-            }
-            else if (stateGrid[buttonID] == 0)
-            {
-                DBG("KTMHC Button Off: " + String(buttonID));
-                AIMORouter::Instance()->routeMidi(getKeyMapping(buttonID), MidiMessage::noteOff(1, buttonID));
-                OSCMessage lightsMessage(getOSCAddress()+"lights");
-                lightsMessage.addInt32(buttonID);
-                lightsMessage.addInt32(ledColours[buttonID]->withRotatedHue(0.5).getARGB());
-                
-                AIMORouter::Instance()->routeOSC(lightsMessage);
-            }
-            return true;
-        }
-        
-    }
-    
-    return false;
-}
 
 
 void KTMHandController::timerCallback() //garbage collection for when a button release callback isn't received
@@ -246,14 +263,6 @@ void KTMHandController::setButtonLED(const int forButton, const bool state)
         message.addInt32(state);
         controllerSend.send(message);
         
-        if (state)
-        {
-            buttonDisplayBoxes[forButton]->setColour(Colours::red);
-        }
-        else
-        {
-            buttonDisplayBoxes[forButton]->setColour(Colours::darkred);
-        }
     }
 }
 
@@ -343,7 +352,7 @@ void KTMHandController::resized()
     {
         ledDisplayBoxes[i]->setBounds(buttonRows[i%4].withHeight((mainBox.getHeight()*0.05)+1).translated(0, (mainBox.getHeight()*0.25)* float(i/4)));
         
-        buttonDisplayBoxes[i]->setBounds(ledDisplayBoxes[i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[i]->getWidth()));
+        buttonModules[i]->setBounds(ledDisplayBoxes[i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[i]->getWidth()));
     }
     ledDisplayBoxes[12]->setBounds(buttonRows[3].getRight(), mainBox.getY(), mainBox.getWidth()/15.0, mainBox.getHeight()*0.05);
     ledDisplayBoxes[13]->setBounds(ledDisplayBoxes[12]->getBounds().translated(mainBox.getWidth()/15.0, 0));
@@ -364,4 +373,21 @@ void KTMHandController::paint(Graphics& g)
 void KTMHandController::mouseDown (const MouseEvent& event)
 {
     DBG("click");
+    
+    if (event.mods.isRightButtonDown())
+    {
+        if (event.eventComponent != this)
+        {
+            for (int i = 0; i < buttonModules.size(); i++)
+            {
+                if (event.eventComponent == buttonModules[i])
+                {
+                    CallOutBox::launchAsynchronously(new MidiButtonModule::ConfigComponent(buttonModules[i]), buttonModules[i]->getScreenBounds(), this);
+                }
+            }
+            
+        }
+    }
+    
+    
 }

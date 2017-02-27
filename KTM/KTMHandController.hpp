@@ -23,6 +23,7 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "AIMOInput.hpp"
 #include "VMCModules.hpp"
+#include "MidiButtonModule.hpp"
 
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
@@ -103,7 +104,6 @@ public:
     void mouseDown (const MouseEvent& event) override;
     
 private:
-    bool pressButton(const int buttonID, const bool state);
     
     OSCReceiver controllerReceive;
     
@@ -114,7 +114,7 @@ private:
     
     OwnedArray<Colour> ledColours;
     OwnedArray<ColouredBox> ledDisplayBoxes;
-    OwnedArray<ColouredBox> buttonDisplayBoxes;
+    OwnedArray<MidiButtonModule> buttonModules;
 
     
     Rectangle<int> mainBox;

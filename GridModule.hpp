@@ -74,7 +74,7 @@ public:
         FINAL_INPUT_TYPE
     };
     
-    class GridButton : public VMCMappableControl
+    class GridButton : public VMCAsyncControl
     {
     public:
         enum ButtonStates{
