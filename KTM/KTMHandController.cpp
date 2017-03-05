@@ -71,7 +71,10 @@ KTMHandController::KTMHandController()
     buttonModules[1][1]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[1][2]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[1][3]->setButtonMode(MidiButtonModule::ToggleCC);
-
+    buttonModules[1][4]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][5]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][6]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][7]->setButtonMode(MidiButtonModule::ToggleCC);
     
     ledColours[0].set(0, new Colour(Colours::orange));
     ledColours[0].set(1, new Colour(Colours::orange));
@@ -232,9 +235,9 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
             int noteNumber = message.getNoteNumber();
             if (noteNumber > -1 && noteNumber < NUM_KTM_BUTTONS)
             {
-                
                 bool prevState = buttonModules[currentPage][noteNumber]->getButtonState();
                 MidiMessage mappedMessage(message);
+                mappedMessage.setChannel(currentPage+1);
                 
                 buttonModules[currentPage][message.getNoteNumber()]->processMidi(&mappedMessage);
                 setButtonLED(noteNumber, buttonModules[currentPage][noteNumber]->getButtonState());
@@ -244,16 +247,7 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
                 {
                     if (noteNumber < 8) //not scene/page change
                     {
-                        if (buttonModules[currentPage][noteNumber]->getButtonState() == 1)
-                        {
-                            DBG("KTMHC Button On: " + String(noteNumber));
-                            AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 127));
-                        }
-                        else if (buttonModules[currentPage][noteNumber]->getButtonState() == 0)
-                        {
-                            DBG("KTMHC Button Off: " + String(noteNumber));
-                            AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 0));
-                        }
+                        AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
                     }
                     else // scene/page change
                     {

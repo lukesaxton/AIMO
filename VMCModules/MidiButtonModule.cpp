@@ -104,17 +104,50 @@ void MidiButtonModule::processMidi (MidiMessage* message)
         {
             if (message->isNoteOnOrOff())
             {
-                if (message->isNoteOn())
+                if (offOnRelease)
+                {
+                    if (message->isNoteOff())
+                    {
+                        *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 0);
+                        offOnRelease = false;
+                        buttonState = false;
+                    }
+                }
+                else if (message->isNoteOn())
                 {
                     buttonState = !buttonState;
                     if (buttonState)
                     {
-                        message->setVelocity(0);
+                        *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 127);
                     }
-                    triggerAsyncUpdate();
+                    else
+                    {
+                        buttonState = true;
+                        offOnRelease = true;
+                    }
                 }
+                
+                triggerAsyncUpdate();
             }
         }
+//        else if (buttonMode == MultiPress)
+//        {
+//            if (message->isNoteOnOrOff())
+//            {
+//                if (message->isNoteOn())
+//                {
+//                    multiPress++;
+//                }
+//                else
+//                {
+//                    multiPress--;
+//                    if (multi) {
+//                        <#statements#>
+//                    }
+//                }
+//            }
+//        }
+        
         else if (buttonMode == List)
         {
             //Not implemented yet

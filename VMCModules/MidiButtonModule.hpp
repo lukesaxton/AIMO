@@ -32,6 +32,7 @@ public:
         Toggle,
         ToggleCC,
         List,
+        MultiPress,
         FINAL_BUTTONMODE
     };
     
@@ -107,6 +108,9 @@ public:
     
 private:
     bool buttonState = 0;
+    bool offOnRelease = 0;
+    int multiPress = 0;
+    
     Colour onColour, offColour;
     String mapOut;
     ButtonMode buttonMode = Standard;

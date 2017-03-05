@@ -127,6 +127,7 @@ private:
     
     int currentScene = 0;
     int currentPage = 0;
+    int buttonsDown = 0;
     
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
