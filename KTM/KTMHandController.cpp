@@ -37,37 +37,115 @@ KTMHandController::KTMHandController()
         stateGrid[i] = 0;
         setKeyMapping("/AIMO Control/", i);
         
-        buttonModules.add(new MidiButtonModule());
-        buttonModules.getLast()->setColour(Colours::red);
-        buttonModules.getLast()->addMouseListener(this, true);
-        addAndMakeVisible(buttonModules.getLast());
+        buttonModules[0].add(new MidiButtonModule());
+        buttonModules[0].getLast()->setColour(Colours::red);
+        buttonModules[0].getLast()->addMouseListener(this, true);
+        addAndMakeVisible(buttonModules[0].getLast());
+        
+        buttonModules[1].add(new MidiButtonModule());
+        buttonModules[1].getLast()->setColour(Colours::red);
+        buttonModules[1].getLast()->addMouseListener(this, true);
+        addAndMakeVisible(buttonModules[1].getLast());
+        
+        buttonModules[2].add(new MidiButtonModule());
+        buttonModules[2].getLast()->setColour(Colours::red);
+        buttonModules[2].getLast()->addMouseListener(this, true);
+        addAndMakeVisible(buttonModules[2].getLast());
         
         setButtonLED(i, false);
     }
 
+    setKeyMapping("/KTM/Scene", 10);
+    setKeyMapping("/KTM/Scene", 10);
     
-    for (int i = 0; i < NUM_RGB_LEDS; i++)
+    setKeyMapping("/KTM/Page", 10+MAX_SCENES);
+    setKeyMapping("/KTM/Page", 10+MAX_SCENES);
+
+    
+    buttonModules[0][4]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[0][5]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[0][6]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[0][7]->setButtonMode(MidiButtonModule::ToggleCC);
+    
+    buttonModules[1][0]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][1]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][2]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][3]->setButtonMode(MidiButtonModule::ToggleCC);
+
+    
+    ledColours[0].set(0, new Colour(Colours::orange));
+    ledColours[0].set(1, new Colour(Colours::orange));
+    ledColours[0].set(2, new Colour(Colours::orange));
+    ledColours[0].set(3, new Colour(Colours::orange));
+    ledColours[0].set(4, new Colour(Colours::blue));
+    ledColours[0].set(5, new Colour(Colours::blue));
+    ledColours[0].set(6, new Colour(Colours::blue));
+    ledColours[0].set(7, new Colour(Colours::blue));
+    ledColours[0].set(8, new Colour(Colours::black));
+    ledColours[0].set(9, new Colour(Colours::black));
+    ledColours[0].set(10, new Colour(Colours::indianred));
+    ledColours[0].set(11, new Colour(Colours::indianred));
+    
+    ledColours[1].set(0, new Colour(Colours::blue));
+    ledColours[1].set(1, new Colour(Colours::blue));
+    ledColours[1].set(2, new Colour(Colours::blue));
+    ledColours[1].set(3, new Colour(Colours::blue));
+    ledColours[1].set(4, new Colour(Colours::green));
+    ledColours[1].set(5, new Colour(Colours::green));
+    ledColours[1].set(6, new Colour(Colours::green));
+    ledColours[1].set(7, new Colour(Colours::green));
+    ledColours[1].set(8, new Colour(Colours::black));
+    ledColours[1].set(9, new Colour(Colours::white));
+    ledColours[1].set(10, new Colour(Colours::indianred));
+    ledColours[1].set(11, new Colour(Colours::indianred));
+    
+    ledColours[2].set(0, new Colour(Colours::red));
+    ledColours[2].set(1, new Colour(Colours::red));
+    ledColours[2].set(2, new Colour(Colours::red));
+    ledColours[2].set(3, new Colour(Colours::red));
+    ledColours[2].set(4, new Colour(Colours::orange));
+    ledColours[2].set(5, new Colour(Colours::orange));
+    ledColours[2].set(6, new Colour(Colours::orange));
+    ledColours[2].set(7, new Colour(Colours::orange));
+    ledColours[2].set(8, new Colour(Colours::white));
+    ledColours[2].set(9, new Colour(Colours::black));
+    ledColours[2].set(10, new Colour(Colours::indianred));
+    ledColours[2].set(11, new Colour(Colours::indianred));
+    
+    
+    
+    for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
-        if (i/4 < 1)
-        {
-            ledColours.add(new Colour(Colours::red));
-        }
-        else if (i/4 > 1)
-        {
-            ledColours.add(new Colour(Colours::yellow));
-
-        }
-        else
-        {
-            ledColours.add(new Colour(Colours::hotpink));
-
-        }
-        ledDisplayBoxes.add(new ColouredBox());
-        ledDisplayBoxes.getLast()->addMouseListener(this, true);
-        addAndMakeVisible(ledDisplayBoxes.getLast());
-        ledDisplayBoxes.getLast()->setColour(*ledColours.getLast());
         
-       
+        ledDisplayBoxes[0].add(new ColouredBox());
+        ledDisplayBoxes[0].getLast()->addMouseListener(this, true);
+        addAndMakeVisible(ledDisplayBoxes[0].getLast());
+        ledDisplayBoxes[0].getLast()->setColour(*ledColours[0].getUnchecked(i));
+        
+        ledDisplayBoxes[1].add(new ColouredBox());
+        ledDisplayBoxes[1].getLast()->addMouseListener(this, true);
+        addChildComponent(ledDisplayBoxes[1].getLast());
+        ledDisplayBoxes[1].getLast()->setColour(*ledColours[1].getUnchecked(i));
+        
+        ledDisplayBoxes[2].add(new ColouredBox());
+        ledDisplayBoxes[2].getLast()->addMouseListener(this, true);
+        addChildComponent(ledDisplayBoxes[2].getLast());
+        ledDisplayBoxes[2].getLast()->setColour(*ledColours[2].getUnchecked(i));
+        
+    }
+    
+    for (int i = 0; i < 3; i++) //sceneLEDS
+    {
+        ledDisplayBoxes[0].add(new ColouredBox());
+        ledDisplayBoxes[0].getLast()->addMouseListener(this, true);
+        addAndMakeVisible(ledDisplayBoxes[0].getLast());
+    }
+    
+
+    sceneColours.add(new Colour(Colours::blue));
+    for (int i = 1; i < MAX_SCENES; i++)
+    {
+        sceneColours.add(new Colour(sceneColours.getLast()->withRotatedHue(0.63)));
     }
     
     setSceneLEDs(Colours::blue);
@@ -154,45 +232,87 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
             int noteNumber = message.getNoteNumber();
             if (noteNumber > -1 && noteNumber < NUM_KTM_BUTTONS)
             {
-                bool prevState = buttonModules[noteNumber]->getButtonState();
-                MidiMessage mappedMessage(message);
-                buttonModules[message.getNoteNumber()]->processMidi(&mappedMessage);
                 
-                setButtonLED(noteNumber, buttonModules[noteNumber]->getButtonState());
+                bool prevState = buttonModules[currentPage][noteNumber]->getButtonState();
+                MidiMessage mappedMessage(message);
+                
+                buttonModules[currentPage][message.getNoteNumber()]->processMidi(&mappedMessage);
+                setButtonLED(noteNumber, buttonModules[currentPage][noteNumber]->getButtonState());
                 
                 // when a button state changes
-                if (buttonModules[noteNumber]->getButtonState() != prevState)
+                if (buttonModules[currentPage][noteNumber]->getButtonState() != prevState)
                 {
-                    if (buttonModules[noteNumber]->getButtonState() == 1)
+                    if (noteNumber < 8) //not scene/page change
                     {
-                        DBG("KTMHC Button On: " + String(noteNumber));
-                        AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 127));
+                        if (buttonModules[currentPage][noteNumber]->getButtonState() == 1)
+                        {
+                            DBG("KTMHC Button On: " + String(noteNumber));
+                            AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 127));
+                        }
+                        else if (buttonModules[currentPage][noteNumber]->getButtonState() == 0)
+                        {
+                            DBG("KTMHC Button Off: " + String(noteNumber));
+                            AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 0));
+                        }
                     }
-                    else if (buttonModules[noteNumber]->getButtonState() == 0)
+                    else // scene/page change
                     {
-                        DBG("KTMHC Button Off: " + String(noteNumber));
-                        AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), MidiMessage::controllerEvent(1, noteNumber, 0));
+                        buttonModules[0][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
+                        buttonModules[1][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
+                        buttonModules[2][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
+
+                        if (buttonModules[currentPage][noteNumber]->getButtonState() == 1)
+                        {
+                            if (noteNumber == 10) // scene up
+                            {
+                                setScene(currentScene-1);
+                            }
+                            else if (noteNumber == 11) // scene down
+                            {
+                                setScene(currentScene+1);
+                            }
+                            else if (noteNumber == 9) // page up
+                            {
+                                if (currentPage == 0)
+                                {
+                                    setPage(1);
+                                }
+                                else if (currentPage == 2)
+                                {
+                                    setPage(0);
+                                }
+                            }
+                            else if (noteNumber == 8) // page down
+                            {
+                                if (currentPage == 0)
+                                {
+                                    setPage(2);
+                                }
+                                else if (currentPage == 1)
+                                {
+                                    setPage(0);
+                                }
+                            }
+
+                        }
+
                     }
+                    
+                    
                 }
                 
                 // Instant button press feedback
-                if (buttonModules[noteNumber]->getButtonState() == 1)
+                
+                if (message.getNoteNumber() != 8 && message.getNoteNumber() != 9)
                 {
+                
                     OSCMessage lightsMessage(getOSCAddress()+"lights");
-                    lightsMessage.addInt32(noteNumber);
-                    lightsMessage.addInt32(ledColours[noteNumber]->withRotatedHue(0.5).getARGB());
+                    lightsMessage.addInt32((noteNumber%NUM_KTM_BUTTONS));
+                    lightsMessage.addInt32(ledColours[currentPage][noteNumber%NUM_KTM_BUTTONS]->withRotatedHue(0.5).getARGB());
                     
                     AIMORouter::Instance()->routeOSC(lightsMessage);
                 }
-                else if (buttonModules[noteNumber]->getButtonState() == 0)
-                {
-                    
-                    OSCMessage lightsMessage(getOSCAddress()+"lights");
-                    lightsMessage.addInt32(noteNumber);
-                    lightsMessage.addInt32(ledColours[noteNumber]->withRotatedHue(0.5).getARGB());
-                    
-                    AIMORouter::Instance()->routeOSC(lightsMessage);
-                }
+               
                 
                
                 return true;
@@ -203,6 +323,10 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
         {
             jassertfalse;
         }
+    }
+    else if (address.contains(getAddress()+"Scene"))
+    {
+        
     }
     return false;
 }
@@ -268,17 +392,22 @@ void KTMHandController::setButtonLED(const int forButton, const bool state)
 
 void KTMHandController::setLEDColour(const int led, const uint8 r, const uint8 g, const uint8 b)
 {
-    if (led > -1 && led < NUM_RGB_LEDS)
+    if (led > -1 && led < NUM_KTM_BUTTONS)
     {
-        *ledColours[led] = Colour::fromRGB(r, g, b);
-        ledDisplayBoxes[led]->setColour(*ledColours[led]);
+        *ledColours[currentPage][led] = Colour::fromRGB(r, g, b);
+        //*ledColours[led] = Colour::fromRGB(r, g, b);
+
+        //ledDisplayBoxes[led]->setColour(*liveLEDColours[led]);
         refreshColourLEDs();
     }
+    
     else
     {
         jassertfalse;
     }
 }
+
+
 
 void KTMHandController::setLEDColour(const int led, const int ARGB)
 {
@@ -298,18 +427,32 @@ void KTMHandController::refreshColourLEDs()
     rgbBlob.reset();
     
     int cR, cG, cB;
-    for (int i = 0; i < ledColours.size(); i++)
+    for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
-        cR = ledColours[i]->getRed() * 0.1;
-        cG = ledColours[i]->getGreen() * 0.1;
-        cB = ledColours[i]->getBlue() * 0.1;
+        cR = ledColours[currentPage][i]->getRed() * 0.04;
+        cG = ledColours[currentPage][i]->getGreen() * 0.04;
+        cB = ledColours[currentPage][i]->getBlue() * 0.04;
         
         rgbBlob.append(&cR, 1);
         rgbBlob.append(&cG, 1);
         rgbBlob.append(&cB, 1);
         
-        ledDisplayBoxes[i]->setColour(*ledColours[i]);
+        ledDisplayBoxes[currentPage][i]->setColour(*ledColours[currentPage][i]);
     }
+    
+    cR = sceneLEDColour.getRed() * 0.04;
+    cG = sceneLEDColour.getGreen() * 0.04;
+    cB = sceneLEDColour.getBlue() * 0.04;
+    
+    for (int i = 0; i < 3; i++)
+    {
+        rgbBlob.append(&cR, 1);
+        rgbBlob.append(&cG, 1);
+        rgbBlob.append(&cB, 1);
+        
+        ledDisplayBoxes[0][NUM_KTM_BUTTONS+i]->setColour(sceneLEDColour);
+    }
+    
     
     OSCMessage rgbMessage("/outputs/rgb/1");
     rgbMessage.addBlob(rgbBlob);
@@ -317,14 +460,76 @@ void KTMHandController::refreshColourLEDs()
     
 }
 
+void KTMHandController::setScene(const int newScene)
+{
+    if (newScene > -1 && newScene < MAX_SCENES)
+    {
+        currentScene = newScene;
+        setSceneLEDs(*sceneColours[newScene]);
+        
+        AIMORouter::Instance()->routeMidi("AIMO Control", MidiMessage::noteOn(16, newScene, uint8(127)));
+
+    }
+    else if (newScene == -1)
+    {
+        setScene(0);
+    }
+    else if (newScene == MAX_SCENES)
+    {
+        setScene(MAX_SCENES-1);
+    }
+}
+
+
 void KTMHandController::setSceneLEDs(const Colour newColour)
 {
-    *ledColours[12] = newColour;
-    *ledColours[13] = newColour;
-    *ledColours[14] = newColour;
+    sceneLEDColour = newColour;
     
     refreshColourLEDs();
 }
+
+void KTMHandController::setPage(const int page)
+{
+    if (page > -1 && page < 3)
+    {
+        currentPage = page;
+
+
+        
+        for (int i = 0; i < 3; i++)
+        {
+            if (i == currentPage)
+            {
+                for (int j = 0; j < buttonModules[i].size(); j++)
+                {
+                    buttonModules[i].getUnchecked(j)->setVisible(true);
+                    ledDisplayBoxes[i].getUnchecked(j)->setVisible(true);
+
+                }
+            }
+            else
+            {
+                for (int j = 0; j < buttonModules[i].size(); j++)
+                {
+                    buttonModules[i].getUnchecked(j)->setVisible(false);
+                    ledDisplayBoxes[i].getUnchecked(j)->setVisible(false);
+
+                }
+            }
+
+        }
+        
+        for (int i = 0; i < NUM_KTM_BUTTONS; i++)
+        {
+            setButtonLED(i, buttonModules[currentPage][i]->getButtonState());
+            refreshColourLEDs();
+        }
+
+    }
+   
+
+}
+
 
 void KTMHandController::resized()
 {
@@ -350,14 +555,21 @@ void KTMHandController::resized()
     
     for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
-        ledDisplayBoxes[i]->setBounds(buttonRows[i%4].withHeight((mainBox.getHeight()*0.05)+1).translated(0, (mainBox.getHeight()*0.25)* float(i/4)));
-        
-        buttonModules[i]->setBounds(ledDisplayBoxes[i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[i]->getWidth()));
-    }
-    ledDisplayBoxes[12]->setBounds(buttonRows[3].getRight(), mainBox.getY(), mainBox.getWidth()/15.0, mainBox.getHeight()*0.05);
-    ledDisplayBoxes[13]->setBounds(ledDisplayBoxes[12]->getBounds().translated(mainBox.getWidth()/15.0, 0));
-    ledDisplayBoxes[14]->setBounds(ledDisplayBoxes[13]->getBounds().translated(mainBox.getWidth()/15.0, 0));
+        ledDisplayBoxes[0][i]->setBounds(buttonRows[i%4].withHeight((mainBox.getHeight()*0.05)+1).translated(0, (mainBox.getHeight()*0.25)* float(i/4)));
+        ledDisplayBoxes[1][i]->setBounds(ledDisplayBoxes[0][i]->getBounds());
+        ledDisplayBoxes[2][i]->setBounds(ledDisplayBoxes[0][i]->getBounds());
 
+        
+        buttonModules[0][i]->setBounds(ledDisplayBoxes[0][i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[0][i]->getWidth()));
+        buttonModules[1][i]->setBounds(ledDisplayBoxes[0][i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[0][i]->getWidth()));
+        buttonModules[2][i]->setBounds(ledDisplayBoxes[0][i]->getBounds().translated(0, mainBox.getHeight()*0.05).withHeight(ledDisplayBoxes[0][i]->getWidth()));
+    }
+    
+    ledDisplayBoxes[0][12]->setBounds(buttonRows[3].getRight(), mainBox.getY(), mainBox.getWidth()/15.0, mainBox.getHeight()*0.05);
+    ledDisplayBoxes[0][13]->setBounds(ledDisplayBoxes[0][12]->getBounds().translated(mainBox.getWidth()/15.0, 0));
+    ledDisplayBoxes[0][14]->setBounds(ledDisplayBoxes[0][13]->getBounds().translated(mainBox.getWidth()/15.0, 0));
+    
+    
 }
 
 
@@ -378,12 +590,18 @@ void KTMHandController::mouseDown (const MouseEvent& event)
     {
         if (event.eventComponent != this)
         {
-            for (int i = 0; i < buttonModules.size(); i++)
+            for (int i = 0; i < NUM_KTM_BUTTONS; i++)
             {
-                if (event.eventComponent == buttonModules[i])
+                for (int j = 0; j < 3; j++)
                 {
-                    CallOutBox::launchAsynchronously(new MidiButtonModule::ConfigComponent(buttonModules[i]), buttonModules[i]->getScreenBounds(), this);
+                    if (event.eventComponent == buttonModules[j][i])
+                    {
+                        CallOutBox::launchAsynchronously(new MidiButtonModule::ConfigComponent(buttonModules[j][i]), buttonModules[j][i]->getScreenBounds(), this);
+                    }
                 }
+
+                
+               
             }
             
         }

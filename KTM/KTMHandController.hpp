@@ -24,9 +24,11 @@
 #include "AIMOInput.hpp"
 #include "VMCModules.hpp"
 #include "MidiButtonModule.hpp"
+#include "SequentialMidiButtonModule.hpp"
 
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
+#define MAX_SCENES 16
 
 /* 
     Class for communicating with the KTM Hand Controller
@@ -97,7 +99,10 @@ public:
     
     void refreshColourLEDs();
     
+    void setScene(const int newScene);
     void setSceneLEDs(const Colour newColour);
+    void setPage(const int page);
+    
     
     void resized() override;
     void paint(Graphics& g) override;
@@ -108,14 +113,20 @@ private:
     OSCReceiver controllerReceive;
     
     OSCSender controllerSend;
-    int stateGrid[NUM_KTM_BUTTONS];
+    int stateGrid[NUM_KTM_BUTTONS*3];
     
     MemoryBlock rgbBlob;
     
-    OwnedArray<Colour> ledColours;
-    OwnedArray<ColouredBox> ledDisplayBoxes;
-    OwnedArray<MidiButtonModule> buttonModules;
+    OwnedArray<Colour> ledColours[3];
+    Colour sceneLEDColour;
+    
+    OwnedArray<ColouredBox> ledDisplayBoxes[3];
+    OwnedArray<MidiButtonModule> buttonModules[3];
 
+    OwnedArray<Colour> sceneColours;
+    
+    int currentScene = 0;
+    int currentPage = 0;
     
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
