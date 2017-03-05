@@ -107,7 +107,7 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                 if (message->isNoteOn())
                 {
                     buttonState = !buttonState;
-                    if (!buttonState)
+                    if (buttonState)
                     {
                         message->setVelocity(0);
                     }
