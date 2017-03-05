@@ -130,23 +130,72 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                 triggerAsyncUpdate();
             }
         }
-//        else if (buttonMode == MultiPress)
-//        {
-//            if (message->isNoteOnOrOff())
-//            {
-//                if (message->isNoteOn())
+        else if (buttonMode == MultiPress)
+        {
+            if (message->isNoteOnOrOff())
+            {
+               
+                if (message->isNoteOff())
+                {
+                    if (!ignoreNextRelease)
+                    {
+                        buttonState = !buttonState;
+                        if (buttonState)
+                        {
+                            *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 127);
+                        }
+                        else
+                        {
+                            *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 0);
+                        }
+                    }
+                    else
+                    {
+                        ignoreNextRelease = false;
+                    }
+//                    if (!ignoreNextRelease)
+//                    {
+//                        *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 0);
+//                        offOnRelease = false;
+//                        buttonState = false;
+//                    }
+//                    else
+//                    {
+//                        ignoreNextRelease = false;
+//                    }
+
+                }
+//                else if (message->isNoteOn())
 //                {
-//                    multiPress++;
-//                }
-//                else
-//                {
-//                    multiPress--;
-//                    if (multi) {
-//                        <#statements#>
+//                    
+//                    buttonState = !buttonState;
+//                    if (buttonState)
+//                    {
+//                        *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 127);
+//                    }
+//                    else
+//                    {
+//                        buttonState = true;
+//                        offOnRelease = true;
 //                    }
 //                }
-//            }
-//        }
+                
+                triggerAsyncUpdate();
+            }
+            else if (message->isController()) // secondary function
+            {
+                if (message->getControllerValue() == 127)
+                {
+                    *message = MidiMessage::noteOn(message->getChannel(), message->getControllerNumber()+32, uint8(127));
+                    ignoreNextRelease = true;
+                }
+                else if (message->getControllerValue() == 0)
+                {
+                    *message = MidiMessage::noteOn(message->getChannel(), message->getControllerNumber()+64, uint8(127));
+                    ignoreNextRelease = true;
+                }
+            }
+        }
         
         else if (buttonMode == List)
         {

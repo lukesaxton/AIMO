@@ -71,10 +71,15 @@ KTMHandController::KTMHandController()
     buttonModules[1][1]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[1][2]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[1][3]->setButtonMode(MidiButtonModule::ToggleCC);
-    buttonModules[1][4]->setButtonMode(MidiButtonModule::ToggleCC);
-    buttonModules[1][5]->setButtonMode(MidiButtonModule::ToggleCC);
-    buttonModules[1][6]->setButtonMode(MidiButtonModule::ToggleCC);
-    buttonModules[1][7]->setButtonMode(MidiButtonModule::ToggleCC);
+    buttonModules[1][4]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[1][5]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[1][6]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[1][7]->setButtonMode(MidiButtonModule::MultiPress);
+    
+    buttonModules[2][4]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[2][5]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[2][6]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[2][7]->setButtonMode(MidiButtonModule::MultiPress);
     
     ledColours[0].set(0, new Colour(Colours::orange));
     ledColours[0].set(1, new Colour(Colours::orange));
@@ -232,85 +237,113 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
     {
         if (message.isNoteOnOrOff())
         {
+            int buttonsDown = 0;
+            for (int i = 0; i < NUM_KTM_BUTTONS; i++)
+            {
+                if (stateGrid[i])
+                {
+                    buttonsDown++;
+                }
+            }
+            
             int noteNumber = message.getNoteNumber();
             if (noteNumber > -1 && noteNumber < NUM_KTM_BUTTONS)
             {
-                bool prevState = buttonModules[currentPage][noteNumber]->getButtonState();
-                MidiMessage mappedMessage(message);
-                mappedMessage.setChannel(currentPage+1);
                 
-                buttonModules[currentPage][message.getNoteNumber()]->processMidi(&mappedMessage);
-                setButtonLED(noteNumber, buttonModules[currentPage][noteNumber]->getButtonState());
-                
-                // when a button state changes
-                if (buttonModules[currentPage][noteNumber]->getButtonState() != prevState)
+                if (buttonsDown <= 1)
                 {
-                    if (noteNumber < 8) //not scene/page change
-                    {
-                        AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
-                    }
-                    else // scene/page change
-                    {
-                        buttonModules[0][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
-                        buttonModules[1][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
-                        buttonModules[2][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
-
-                        if (buttonModules[currentPage][noteNumber]->getButtonState() == 1)
-                        {
-                            if (noteNumber == 10) // scene up
-                            {
-                                setScene(currentScene-1);
-                            }
-                            else if (noteNumber == 11) // scene down
-                            {
-                                setScene(currentScene+1);
-                            }
-                            else if (noteNumber == 9) // page up
-                            {
-                                if (currentPage == 0)
-                                {
-                                    setPage(1);
-                                }
-                                else if (currentPage == 2)
-                                {
-                                    setPage(0);
-                                }
-                            }
-                            else if (noteNumber == 8) // page down
-                            {
-                                if (currentPage == 0)
-                                {
-                                    setPage(2);
-                                }
-                                else if (currentPage == 1)
-                                {
-                                    setPage(0);
-                                }
-                            }
-
-                        }
-
-                    }
+                    bool prevState = buttonModules[currentPage][noteNumber]->getButtonState();
+                    MidiMessage mappedMessage(message);
+                    mappedMessage.setChannel(currentPage+1);
                     
+                    buttonModules[currentPage][message.getNoteNumber()]->processMidi(&mappedMessage);
+                    setButtonLED(noteNumber, buttonModules[currentPage][noteNumber]->getButtonState());
+                    
+                    // when a button state changes
+                    if (buttonModules[currentPage][noteNumber]->getButtonState() != prevState)
+                    {
+                        if (noteNumber < 8) //not scene/page change
+                        {
+                            AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
+                        }
+                        else // scene/page change
+                        {
+                            buttonModules[0][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
+                            buttonModules[1][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
+                            buttonModules[2][noteNumber]->setButtonState(buttonModules[currentPage][noteNumber]->getButtonState());
+                            
+                            if (buttonModules[currentPage][noteNumber]->getButtonState() == 1)
+                            {
+                                if (noteNumber == 10) // scene up
+                                {
+                                    setScene(currentScene-1);
+                                }
+                                else if (noteNumber == 11) // scene down
+                                {
+                                    setScene(currentScene+1);
+                                }
+                                else if (noteNumber == 9) // page up
+                                {
+                                    if (currentPage == 0)
+                                    {
+                                        setPage(1);
+                                    }
+                                    else if (currentPage == 2)
+                                    {
+                                        setPage(0);
+                                    }
+                                }
+                                else if (noteNumber == 8) // page down
+                                {
+                                    if (currentPage == 0)
+                                    {
+                                        setPage(2);
+                                    }
+                                    else if (currentPage == 1)
+                                    {
+                                        setPage(0);
+                                    }
+                                }
+                            }
+                        }
+                    }
                     
                 }
-                
+                else if (buttonsDown == 2)
+                {
+
+                    if (currentPage == 2 || currentPage == 1)
+                    {
+                        for (int i = 4; i < 8; i++)
+                        {
+                            if (stateGrid[i] && stateGrid[i-4])
+                            {
+                                MidiMessage multiFunction(MidiMessage::controllerEvent(currentPage+1, noteNumber, 127));
+                                buttonModules[currentPage][i]->processMidi(&multiFunction);
+                                AIMORouter::Instance()->routeMidi(getKeyMapping(i), multiFunction);
+                            }
+                            else if (stateGrid[i] && stateGrid[i+4])
+                            {
+                                MidiMessage multiFunction(MidiMessage::controllerEvent(currentPage+1, noteNumber, 0));
+                                buttonModules[currentPage][i]->processMidi(&multiFunction);
+                                AIMORouter::Instance()->routeMidi(getKeyMapping(i), multiFunction);
+                            }
+                        }
+                    }
+                }
                 // Instant button press feedback
                 
                 if (message.getNoteNumber() != 8 && message.getNoteNumber() != 9)
                 {
-                
+                    
                     OSCMessage lightsMessage(getOSCAddress()+"lights");
                     lightsMessage.addInt32((noteNumber%NUM_KTM_BUTTONS));
                     lightsMessage.addInt32(ledColours[currentPage][noteNumber%NUM_KTM_BUTTONS]->withRotatedHue(0.5).getARGB());
                     
                     AIMORouter::Instance()->routeOSC(lightsMessage);
                 }
-               
-                
-               
                 return true;
-                
+
             }
         }
         else

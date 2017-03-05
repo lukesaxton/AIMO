@@ -33,6 +33,7 @@ public:
         ToggleCC,
         List,
         MultiPress,
+        LiveLooper,
         FINAL_BUTTONMODE
     };
     
@@ -110,6 +111,7 @@ private:
     bool buttonState = 0;
     bool offOnRelease = 0;
     int multiPress = 0;
+    bool ignoreNextRelease = 0;
     
     Colour onColour, offColour;
     String mapOut;

@@ -113,7 +113,7 @@ private:
     OSCReceiver controllerReceive;
     
     OSCSender controllerSend;
-    int stateGrid[NUM_KTM_BUTTONS*3];
+    int stateGrid[NUM_KTM_BUTTONS];
     
     MemoryBlock rgbBlob;
     
@@ -127,12 +127,10 @@ private:
     
     int currentScene = 0;
     int currentPage = 0;
-    int buttonsDown = 0;
     
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
-    
-    
+        
     
 };
 
