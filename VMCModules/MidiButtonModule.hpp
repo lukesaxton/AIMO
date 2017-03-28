@@ -31,6 +31,7 @@ public:
         Standard = 1,
         Toggle,
         ToggleCC,
+        IncCC,
         List,
         MultiPress,
         LiveLooper,
@@ -108,10 +109,14 @@ public:
     
     
 private:
+    void incCurrentCC(bool inc);
+    
     bool buttonState = 0;
     bool offOnRelease = 0;
     int multiPress = 0;
     bool ignoreNextRelease = 0;
+    int currentCC = 0;
+    
     
     Colour onColour, offColour;
     String mapOut;

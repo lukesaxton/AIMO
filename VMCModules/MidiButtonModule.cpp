@@ -153,34 +153,9 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                     {
                         ignoreNextRelease = false;
                     }
-//                    if (!ignoreNextRelease)
-//                    {
-//                        *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 0);
-//                        offOnRelease = false;
-//                        buttonState = false;
-//                    }
-//                    else
-//                    {
-//                        ignoreNextRelease = false;
-//                    }
-
-                }
-//                else if (message->isNoteOn())
-//                {
-//                    
-//                    buttonState = !buttonState;
-//                    if (buttonState)
-//                    {
-//                        *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 127);
-//                    }
-//                    else
-//                    {
-//                        buttonState = true;
-//                        offOnRelease = true;
-//                    }
-//                }
                 
                 triggerAsyncUpdate();
+                }
             }
             else if (message->isController()) // secondary function
             {
@@ -196,7 +171,52 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                 }
             }
         }
-        
+        else if (buttonMode == IncCC)
+        {
+            if (message->isNoteOnOrOff())
+            {
+                
+                if (message->isNoteOff())
+                {
+                    if (!ignoreNextRelease)
+                    {
+                        buttonState = !buttonState;
+                        if (buttonState)
+                        {
+                            *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 127);
+                        }
+                        else
+                        {
+                            *message = MidiMessage::controllerEvent(message->getChannel(), message->getNoteNumber(), 0);
+                        }
+                    }
+                    else
+                    {
+                        ignoreNextRelease = false;
+                    }
+                    
+                    triggerAsyncUpdate();
+                }
+            }
+            else if (message->isController()) // secondary function
+            {
+                if (message->getControllerValue() == 127)
+                {
+                    incCurrentCC(true);
+                    
+                    *message = MidiMessage::controllerEvent(message->getChannel(), message->getControllerNumber()+32, uint8(currentCC));
+                    ignoreNextRelease = true;
+                }
+                else if (message->getControllerValue() == 0)
+                {
+                    incCurrentCC(false);
+                    
+                    *message = MidiMessage::controllerEvent(message->getChannel(), message->getControllerNumber()+24, uint8(currentCC));
+                    ignoreNextRelease = true;
+                }
+            }
+
+        }
         else if (buttonMode == List)
         {
             //Not implemented yet
@@ -219,3 +239,24 @@ bool MidiButtonModule::setButtonMode(const int newMode)
     }
     return false;
 }
+        
+void MidiButtonModule::incCurrentCC(bool inc)
+{
+    if (inc)
+    {
+        currentCC += 32;
+        if (currentCC > 127)
+        {
+            currentCC = 127;
+        }
+    }
+    else
+    {
+        currentCC -= 32;
+        if (currentCC < 0)
+        {
+            currentCC = 0;
+        }
+    }
+}
+

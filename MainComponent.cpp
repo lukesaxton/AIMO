@@ -29,13 +29,13 @@ public:
     //==============================================================================
     MainContentComponent() : controllerOne("controllerOne")
     {
-        setSize (1000, 480);
+        setSize (600, 480);
 
         // specify the number of input and output channels that we want to open
         ///setAudioChannels (2, 2);
         
         addAndMakeVisible(inputManager);
-        addAndMakeVisible(controllerOne);
+        //addAndMakeVisible(controllerOne);
         addAndMakeVisible(kTMController);
     }
 
@@ -90,8 +90,8 @@ public:
     void resized() override
     {
         inputManager.setBounds(0, 0, 60, getHeight());
-        controllerOne.setBounds(60, 0, (getWidth()*0.5)-30, getHeight());
-        kTMController.setBounds(controllerOne.getBounds().translated((getWidth()*0.5)-30, 0));
+        kTMController.setBounds(60, 0, (getWidth())-30, getHeight());
+        //kTMController.setBounds(controllerOne.getBounds().translated((getWidth()*0.5)-30, 0));
     }
 
 

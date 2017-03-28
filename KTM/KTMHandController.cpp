@@ -71,10 +71,10 @@ KTMHandController::KTMHandController()
     buttonModules[1][1]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[1][2]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[1][3]->setButtonMode(MidiButtonModule::ToggleCC);
-    buttonModules[1][4]->setButtonMode(MidiButtonModule::MultiPress);
-    buttonModules[1][5]->setButtonMode(MidiButtonModule::MultiPress);
-    buttonModules[1][6]->setButtonMode(MidiButtonModule::MultiPress);
-    buttonModules[1][7]->setButtonMode(MidiButtonModule::MultiPress);
+    buttonModules[1][4]->setButtonMode(MidiButtonModule::IncCC);
+    buttonModules[1][5]->setButtonMode(MidiButtonModule::IncCC);
+    buttonModules[1][6]->setButtonMode(MidiButtonModule::IncCC);
+    buttonModules[1][7]->setButtonMode(MidiButtonModule::IncCC);
     
     buttonModules[2][4]->setButtonMode(MidiButtonModule::MultiPress);
     buttonModules[2][5]->setButtonMode(MidiButtonModule::MultiPress);
@@ -314,9 +314,9 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
 
                     if (currentPage == 2 || currentPage == 1)
                     {
-                        for (int i = 4; i < 8; i++)
+                        for (int i = 4; i < 8; i++) // middle row
                         {
-                            if (stateGrid[i] && stateGrid[i-4])
+                            if (stateGrid[i] && stateGrid[i-4]) // middle and top
                             {
                                 MidiMessage multiFunction(MidiMessage::controllerEvent(currentPage+1, noteNumber, 127));
                                 buttonModules[currentPage][i]->processMidi(&multiFunction);
