@@ -20,10 +20,12 @@
 #include "MidiButtonModule.hpp"
 
 
-MidiButtonModule::MidiButtonModule()
+MidiButtonModule::MidiButtonModule(VMCModule& parent) : parentModule(parent)
 {
     onColour = Colours::snow;
     offColour = Colours::grey;
+    
+    looperButtonState = Clear;
 }
 
 MidiButtonModule::~MidiButtonModule()
@@ -222,6 +224,71 @@ void MidiButtonModule::processMidi (MidiMessage* message)
             //Not implemented yet
             jassertfalse;
         }
+        else if (buttonMode == LiveLooper)
+        {
+            if (message->isNoteOn())
+            {
+                buttonState = true;
+                
+                static uint32 timeOfLastClick = 0;
+                uint32 timeSinceLastClick = Time::getMillisecondCounter() - timeOfLastClick;
+                lastMidiChannel = message->getChannel();
+                
+                startTimer(2000);
+                
+                if (timeSinceLastClick < DOUBLE_CLICK_TIME) // stop looper
+                {
+                    if (looperButtonState != Clear)
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 123, uint8(127)); // stop
+                        looperButtonState = Stop;
+                    }
+                    else
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 124, uint8(127)); // clear
+
+                    }
+                    
+                    
+                }
+                else
+                {
+                    if (looperButtonState == Clear)
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 120, uint8(127)); // record
+                        looperButtonState = Record;
+
+                    }
+                    else if (looperButtonState == Record)
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 121, uint8(127)); // play
+                        looperButtonState = Play;
+                    }
+                    else if (looperButtonState == Play)
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 122, uint8(127)); // Overdub
+                        looperButtonState = Overdub;
+                    }
+                    else if (looperButtonState == Overdub)
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 121, uint8(127)); // play
+                        looperButtonState = Play;
+                    }
+                    else if (looperButtonState == Stop)
+                    {
+                        *message = MidiMessage::noteOn(message->getChannel(), 121, uint8(127)); // play
+                        clearIfLongPress = true;
+                        looperButtonState = Play;
+                    }
+                }
+
+                timeOfLastClick = Time::getMillisecondCounter();
+            }
+            else if (message->isNoteOff())
+            {
+                buttonState = false;
+            }
+        }
     }
 }
 
@@ -235,11 +302,46 @@ bool MidiButtonModule::setButtonMode(const int newMode)
     if (newMode > 0 && newMode < FINAL_BUTTONMODE)
     {
         buttonMode = ButtonMode(newMode);
+        
+        if (newMode == LiveLooper && looperButtonState == NotALooper)
+        {
+            looperButtonState = Clear;
+        }
+        else if (newMode != LiveLooper)
+        {
+            looperButtonState = NotALooper;
+        }
+        
         return true;
     }
     return false;
 }
-        
+
+int MidiButtonModule::getLooperButtonMode()
+{
+    return looperButtonState;
+}
+
+
+void MidiButtonModule::timerCallback()
+{
+    if (buttonState) // button is still down after 2 seconds
+    {
+        if (clearIfLongPress)
+        {
+            looperButtonState = Clear;
+            parentModule.sendToAddress(MidiMessage::noteOn(lastMidiChannel, 124, uint8(127))); // clear
+        }
+        else
+        {
+            parentModule.sendToAddress(MidiMessage::noteOn(lastMidiChannel, 125, uint8(127))); // undo
+        }
+    }
+    clearIfLongPress = false;
+    stopTimer();
+}
+
+
 void MidiButtonModule::incCurrentCC(bool inc)
 {
     if (inc)

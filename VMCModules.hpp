@@ -29,6 +29,10 @@ public:
     virtual ~VMCModule() {};
     virtual void setMapOut (const String newMapOut) = 0;
     virtual bool routeMidi (const String address, const MidiMessage message) = 0;
+    virtual void sendToAddress(const MidiMessage message)
+    {
+        jassertfalse; //bit hacky for now, nee to find a better way for midi processors to bounce asyc midi back up to parent controllers
+    }
     virtual String getAddress() {return address;}
     virtual void setAddress(const String newAddress) { address = newAddress; }
 private:

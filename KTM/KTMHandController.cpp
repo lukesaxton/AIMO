@@ -37,17 +37,17 @@ KTMHandController::KTMHandController()
         stateGrid[i] = 0;
         setKeyMapping("/AIMO Control/", i);
         
-        buttonModules[0].add(new MidiButtonModule());
+        buttonModules[0].add(new MidiButtonModule(*this));
         buttonModules[0].getLast()->setColour(Colours::red);
         buttonModules[0].getLast()->addMouseListener(this, true);
         addAndMakeVisible(buttonModules[0].getLast());
         
-        buttonModules[1].add(new MidiButtonModule());
+        buttonModules[1].add(new MidiButtonModule(*this));
         buttonModules[1].getLast()->setColour(Colours::red);
         buttonModules[1].getLast()->addMouseListener(this, true);
         addAndMakeVisible(buttonModules[1].getLast());
         
-        buttonModules[2].add(new MidiButtonModule());
+        buttonModules[2].add(new MidiButtonModule(*this));
         buttonModules[2].getLast()->setColour(Colours::red);
         buttonModules[2].getLast()->addMouseListener(this, true);
         addAndMakeVisible(buttonModules[2].getLast());
@@ -61,6 +61,11 @@ KTMHandController::KTMHandController()
     setKeyMapping("/KTM/Page", 10+MAX_SCENES);
     setKeyMapping("/KTM/Page", 10+MAX_SCENES);
 
+    
+    buttonModules[0][0]->setButtonMode(MidiButtonModule::LiveLooper);
+    buttonModules[0][1]->setButtonMode(MidiButtonModule::LiveLooper);
+    buttonModules[0][2]->setButtonMode(MidiButtonModule::LiveLooper);
+    buttonModules[0][3]->setButtonMode(MidiButtonModule::LiveLooper);
     
     buttonModules[0][4]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[0][5]->setButtonMode(MidiButtonModule::ToggleCC);
@@ -81,10 +86,10 @@ KTMHandController::KTMHandController()
     buttonModules[2][6]->setButtonMode(MidiButtonModule::MultiPress);
     buttonModules[2][7]->setButtonMode(MidiButtonModule::MultiPress);
     
-    ledColours[0].set(0, new Colour(Colours::orange));
-    ledColours[0].set(1, new Colour(Colours::orange));
-    ledColours[0].set(2, new Colour(Colours::orange));
-    ledColours[0].set(3, new Colour(Colours::orange));
+    ledColours[0].set(0, new Colour(Colours::black));
+    ledColours[0].set(1, new Colour(Colours::black));
+    ledColours[0].set(2, new Colour(Colours::black));
+    ledColours[0].set(3, new Colour(Colours::black));
     ledColours[0].set(4, new Colour(Colours::blue));
     ledColours[0].set(5, new Colour(Colours::blue));
     ledColours[0].set(6, new Colour(Colours::blue));
@@ -264,7 +269,20 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
                     {
                         if (noteNumber < 8) //not scene/page change
                         {
-                            AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
+                            
+                            if (buttonModules[currentPage][noteNumber]->getButtonMode() == MidiButtonModule::LiveLooper)
+                            {
+                                if (message.isNoteOn())
+                                {
+                                    AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
+                                    refreshLooperState(noteNumber);
+                                }
+                            }
+                            else
+                            {
+                                AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
+                            }
+                            
                         }
                         else // scene/page change
                         {
@@ -335,12 +353,15 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
                 
                 if (message.getNoteNumber() != 8 && message.getNoteNumber() != 9)
                 {
-                    
-                    OSCMessage lightsMessage(getOSCAddress()+"lights");
-                    lightsMessage.addInt32((noteNumber%NUM_KTM_BUTTONS));
-                    lightsMessage.addInt32(ledColours[currentPage][noteNumber%NUM_KTM_BUTTONS]->withRotatedHue(0.5).getARGB());
-                    
-                    AIMORouter::Instance()->routeOSC(lightsMessage);
+                    if (buttonModules[currentPage][noteNumber]->getButtonMode() != MidiButtonModule::LiveLooper)
+                    {
+                        OSCMessage lightsMessage(getOSCAddress()+"lights");
+                        lightsMessage.addInt32((noteNumber%NUM_KTM_BUTTONS));
+                        lightsMessage.addInt32(ledColours[currentPage][noteNumber%NUM_KTM_BUTTONS]->withRotatedHue(0.5).getARGB());
+                        
+                        AIMORouter::Instance()->routeOSC(lightsMessage);
+                    }
+                   
                 }
                 return true;
 
@@ -356,6 +377,16 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
         
     }
     return false;
+}
+
+void KTMHandController::sendToAddress(const MidiMessage message)
+{
+    AIMORouter::Instance()->routeMidi(getKeyMapping(0), message);
+    
+    for (int i = 0; i < 4; i++)
+    {
+        refreshLooperState(i);
+    }
 }
 
 void KTMHandController::setOSCMapOut()
@@ -633,6 +664,29 @@ void KTMHandController::mouseDown (const MouseEvent& event)
             
         }
     }
+}
+
+void KTMHandController::refreshLooperState(const int forButton)
+{
     
-    
+    switch (buttonModules[currentPage][forButton]->getLooperButtonMode())
+    {
+        case MidiButtonModule::Play:
+            setLEDColour(forButton, Colours::cyan.getARGB());
+            break;
+        case MidiButtonModule::Stop:
+            setLEDColour(forButton, Colours::white.getARGB());
+            break;
+        case MidiButtonModule::Record:
+            setLEDColour(forButton, Colours::deeppink.getARGB());
+            break;
+        case MidiButtonModule::Overdub:
+            setLEDColour(forButton, Colours::orange.getARGB());
+            break;
+        case MidiButtonModule::Clear:
+            setLEDColour(forButton, Colours::black.getARGB());
+            break;
+        default:
+            break;
+    }
 }

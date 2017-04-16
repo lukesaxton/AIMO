@@ -23,8 +23,12 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 #include "VMCModules.hpp"
 
+#define DOUBLE_CLICK_TIME 200
+#define LONG_PRESS_TIME 1500
+
 class MidiButtonModule : public VMCAsyncControl,
-                         public VMCMidiProcessor
+                         public VMCMidiProcessor,
+                         public Timer
 {
 public:
     enum ButtonMode{
@@ -36,6 +40,16 @@ public:
         MultiPress,
         LiveLooper,
         FINAL_BUTTONMODE
+    };
+    
+    enum LooperButtonState{
+        NotALooper = 0,
+        Play,
+        Stop,
+        Record,
+        Overdub,
+        Clear,
+        FINAL_LOOPERBUTTONSTATE
     };
     
     class ConfigComponent : public Component,
@@ -53,6 +67,8 @@ public:
             modeBox.addItem("Toggle", ButtonMode::Toggle);
             modeBox.addItem("ToggleCC", ButtonMode::ToggleCC);
             modeBox.addItem("List", ButtonMode::List);
+            modeBox.addItem("Live Looper", ButtonMode::LiveLooper);
+
 
             modeBox.setSelectedId(midiButton->getButtonMode(), dontSendNotification);
             modeBox.addListener(this);
@@ -95,7 +111,7 @@ public:
     };
     
     
-    MidiButtonModule();
+    MidiButtonModule(VMCModule& parent);
     ~MidiButtonModule();
     void paint(Graphics& g) override;
     void resized() override;
@@ -107,16 +123,25 @@ public:
     const int getButtonMode();
     bool setButtonMode(const int newMode);
     
+    int getLooperButtonMode();
+    
+    void timerCallback() override;
     
 private:
     void incCurrentCC(bool inc);
     
     bool buttonState = 0;
+    
+    int looperButtonState = 0;
+    
+    bool clearIfLongPress = 0;
     bool offOnRelease = 0;
     int multiPress = 0;
     bool ignoreNextRelease = 0;
     int currentCC = 0;
+    int lastMidiChannel = 0;
     
+    VMCModule& parentModule;
     
     Colour onColour, offColour;
     String mapOut;

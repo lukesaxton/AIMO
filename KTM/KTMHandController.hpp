@@ -83,6 +83,7 @@ public:
     
     void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
+    void sendToAddress(const MidiMessage message) override;
     
     void setOSCMapOut() override;
     bool routeOSC (const OSCMessage) override;
@@ -107,6 +108,8 @@ public:
     void resized() override;
     void paint(Graphics& g) override;
     void mouseDown (const MouseEvent& event) override;
+    
+    void refreshLooperState(const int forButton);
     
 private:
     
