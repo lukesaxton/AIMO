@@ -67,6 +67,11 @@ KTMHandController::KTMHandController()
     buttonModules[0][2]->setButtonMode(MidiButtonModule::LiveLooper);
     buttonModules[0][3]->setButtonMode(MidiButtonModule::LiveLooper);
     
+    buttonModules[0][0]->setLooperNumber(1);
+    buttonModules[0][1]->setLooperNumber(2);
+    buttonModules[0][2]->setLooperNumber(3);
+    buttonModules[0][3]->setLooperNumber(4);
+    
     buttonModules[0][4]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[0][5]->setButtonMode(MidiButtonModule::ToggleCC);
     buttonModules[0][6]->setButtonMode(MidiButtonModule::ToggleCC);
@@ -81,6 +86,10 @@ KTMHandController::KTMHandController()
     buttonModules[1][6]->setButtonMode(MidiButtonModule::IncCC);
     buttonModules[1][7]->setButtonMode(MidiButtonModule::IncCC);
     
+    buttonModules[2][0]->setButtonMode(MidiButtonModule::Standard);
+    buttonModules[2][1]->setButtonMode(MidiButtonModule::Standard);
+    buttonModules[2][2]->setButtonMode(MidiButtonModule::Standard);
+    buttonModules[2][3]->setButtonMode(MidiButtonModule::Standard);
     buttonModules[2][4]->setButtonMode(MidiButtonModule::MultiPress);
     buttonModules[2][5]->setButtonMode(MidiButtonModule::MultiPress);
     buttonModules[2][6]->setButtonMode(MidiButtonModule::MultiPress);
@@ -259,6 +268,7 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
                 {
                     bool prevState = buttonModules[currentPage][noteNumber]->getButtonState();
                     MidiMessage mappedMessage(message);
+                    
                     mappedMessage.setChannel(currentPage+1);
                     
                     buttonModules[currentPage][message.getNoteNumber()]->processMidi(&mappedMessage);
@@ -269,8 +279,24 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
                     {
                         if (noteNumber < 8) //not scene/page change
                         {
+                            if (currentPage == 2 && noteNumber < 4) // master clear buttons
+                            {
+                                if (mappedMessage.isNoteOn())
+                                {
+                                    if (buttonModules[2][noteNumber]->getTimeSinceLastClick() < 200)
+                                    {
+                                        buttonModules[0][message.getNoteNumber()]->clearLooper();
+                                    }
+                                    else
+                                    {
+                                        buttonModules[0][message.getNoteNumber()]->looperUndo();
+                                    }
+                                }
+                                
+                                
+                            }
                             
-                            if (buttonModules[currentPage][noteNumber]->getButtonMode() == MidiButtonModule::LiveLooper)
+                            else if (buttonModules[currentPage][noteNumber]->getButtonMode() == MidiButtonModule::LiveLooper)
                             {
                                 if (message.isNoteOn())
                                 {
@@ -278,6 +304,8 @@ bool KTMHandController::routeMidi (const String address, const MidiMessage messa
                                     refreshLooperState(noteNumber);
                                 }
                             }
+                            
+                            
                             else
                             {
                                 AIMORouter::Instance()->routeMidi(getKeyMapping(noteNumber), mappedMessage);
@@ -487,9 +515,9 @@ void KTMHandController::refreshColourLEDs()
     int cR, cG, cB;
     for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
-        cR = ledColours[currentPage][i]->getRed() * 0.04;
-        cG = ledColours[currentPage][i]->getGreen() * 0.04;
-        cB = ledColours[currentPage][i]->getBlue() * 0.04;
+        cR = ledColours[currentPage][i]->getRed() * 0.1;
+        cG = ledColours[currentPage][i]->getGreen() * 0.1;
+        cB = ledColours[currentPage][i]->getBlue() * 0.1;
         
         rgbBlob.append(&cR, 1);
         rgbBlob.append(&cG, 1);
@@ -498,9 +526,9 @@ void KTMHandController::refreshColourLEDs()
         ledDisplayBoxes[currentPage][i]->setColour(*ledColours[currentPage][i]);
     }
     
-    cR = sceneLEDColour.getRed() * 0.04;
-    cG = sceneLEDColour.getGreen() * 0.04;
-    cB = sceneLEDColour.getBlue() * 0.04;
+    cR = sceneLEDColour.getRed() * 0.1;
+    cG = sceneLEDColour.getGreen() * 0.1;
+    cB = sceneLEDColour.getBlue() * 0.1;
     
     for (int i = 0; i < 3; i++)
     {
@@ -552,7 +580,6 @@ void KTMHandController::setPage(const int page)
     {
         currentPage = page;
 
-
         
         for (int i = 0; i < 3; i++)
         {
@@ -580,6 +607,10 @@ void KTMHandController::setPage(const int page)
         for (int i = 0; i < NUM_KTM_BUTTONS; i++)
         {
             setButtonLED(i, buttonModules[currentPage][i]->getButtonState());
+            if (i < 4)
+            {
+                refreshLooperState(i);
+            }
             refreshColourLEDs();
         }
 

@@ -25,7 +25,11 @@ MidiButtonModule::MidiButtonModule(VMCModule& parent) : parentModule(parent)
     onColour = Colours::snow;
     offColour = Colours::grey;
     
+    buttonMode = Standard;
+    
     looperButtonState = Clear;
+    
+    
 }
 
 MidiButtonModule::~MidiButtonModule()
@@ -81,6 +85,15 @@ void MidiButtonModule::processMidi (MidiMessage* message)
 {
     if (message)
     {
+        static uint32 timeOfLastClick = 0;
+
+        if (message->isNoteOn())
+        {
+            timeSinceLastClick = Time::getMillisecondCounter() - timeOfLastClick;
+            timeOfLastClick = Time::getMillisecondCounter();
+
+        }
+        
         if (buttonMode == Standard)
         {
             buttonState = message->isNoteOn();
@@ -230,9 +243,6 @@ void MidiButtonModule::processMidi (MidiMessage* message)
             {
                 buttonState = true;
                 
-                static uint32 timeOfLastClick = 0;
-                uint32 timeSinceLastClick = Time::getMillisecondCounter() - timeOfLastClick;
-                lastMidiChannel = message->getChannel();
                 
                 startTimer(2000);
                 
@@ -240,13 +250,12 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                 {
                     if (looperButtonState != Clear)
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 123, uint8(127)); // stop
+                        *message = MidiMessage::noteOn(looperNumber, 123, uint8(127)); // stop
                         looperButtonState = Stop;
                     }
                     else
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 124, uint8(127)); // clear
-
+                        *message = MidiMessage::noteOn(looperNumber, 124, uint8(127)); // clear
                     }
                     
                     
@@ -255,40 +264,41 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                 {
                     if (looperButtonState == Clear)
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 120, uint8(127)); // record
+                        *message = MidiMessage::noteOn(looperNumber, 120, uint8(127)); // record
                         looperButtonState = Record;
 
                     }
                     else if (looperButtonState == Record)
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 121, uint8(127)); // play
+                        *message = MidiMessage::noteOn(looperNumber, 121, uint8(127)); // play
                         looperButtonState = Play;
                     }
                     else if (looperButtonState == Play)
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 122, uint8(127)); // Overdub
+                        *message = MidiMessage::noteOn(looperNumber, 122, uint8(127)); // Overdub
                         looperButtonState = Overdub;
                     }
                     else if (looperButtonState == Overdub)
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 121, uint8(127)); // play
+                        *message = MidiMessage::noteOn(looperNumber, 121, uint8(127)); // play
                         looperButtonState = Play;
                     }
                     else if (looperButtonState == Stop)
                     {
-                        *message = MidiMessage::noteOn(message->getChannel(), 121, uint8(127)); // play
+                        *message = MidiMessage::noteOn(looperNumber, 121, uint8(127)); // play
                         clearIfLongPress = true;
                         looperButtonState = Play;
                     }
                 }
 
-                timeOfLastClick = Time::getMillisecondCounter();
             }
             else if (message->isNoteOff())
             {
                 buttonState = false;
             }
         }
+        
+        
     }
 }
 
@@ -323,6 +333,18 @@ int MidiButtonModule::getLooperButtonMode()
 }
 
 
+void MidiButtonModule::clearLooper()
+{
+    looperButtonState = Clear;
+    parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 124, uint8(127))); // clear
+}
+
+void MidiButtonModule::looperUndo()
+{
+    parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 125, uint8(127))); // undo
+}
+
+
 void MidiButtonModule::timerCallback()
 {
     if (buttonState) // button is still down after 2 seconds
@@ -330,11 +352,11 @@ void MidiButtonModule::timerCallback()
         if (clearIfLongPress)
         {
             looperButtonState = Clear;
-            parentModule.sendToAddress(MidiMessage::noteOn(lastMidiChannel, 124, uint8(127))); // clear
+            parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 124, uint8(127))); // clear
         }
         else
         {
-            parentModule.sendToAddress(MidiMessage::noteOn(lastMidiChannel, 125, uint8(127))); // undo
+            parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 125, uint8(127))); // undo
         }
     }
     clearIfLongPress = false;

@@ -124,6 +124,13 @@ public:
     bool setButtonMode(const int newMode);
     
     int getLooperButtonMode();
+    void clearLooper();
+    void looperUndo();
+    void setLooperNumber(int newNumber) {looperNumber = newNumber;};
+    
+    uint32 getTimeSinceLastClick() {
+        DBG(String(timeSinceLastClick));
+        return timeSinceLastClick;};
     
     void timerCallback() override;
     
@@ -139,7 +146,9 @@ private:
     int multiPress = 0;
     bool ignoreNextRelease = 0;
     int currentCC = 0;
-    int lastMidiChannel = 0;
+    int looperNumber = 0;
+    
+    uint32 timeSinceLastClick = 0;
     
     VMCModule& parentModule;
     
