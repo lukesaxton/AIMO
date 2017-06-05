@@ -33,7 +33,6 @@ public:
     VirtualMidiController(String _ID);
     ~VirtualMidiController();
     
-    void setMapOut (const String newMapOut) override {}
     bool routeMidi (const String address, const MidiMessage message) override;
     bool mapMidi (const String address, const String source, const MidiMessage message);
     

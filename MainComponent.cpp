@@ -35,8 +35,8 @@ public:
         ///setAudioChannels (2, 2);
         
         addAndMakeVisible(inputManager);
-        //addAndMakeVisible(controllerOne);
-        addAndMakeVisible(kTMController);
+        addAndMakeVisible(controllerOne);
+        //addAndMakeVisible(kTMController);
     }
 
     ~MainContentComponent()
@@ -90,7 +90,7 @@ public:
     void resized() override
     {
         inputManager.setBounds(0, 0, 60, getHeight());
-        kTMController.setBounds(60, 0, (getWidth())-30, getHeight());
+        controllerOne.setBounds(60, 0, (getWidth())-30, getHeight());
         //kTMController.setBounds(controllerOne.getBounds().translated((getWidth()*0.5)-30, 0));
     }
 
@@ -99,7 +99,7 @@ private:
     //==============================================================================
     
     VirtualMidiController controllerOne;
-    KTMHandController kTMController;
+    //KTMHandController kTMController;
 
     AIMOInputManager inputManager;
     

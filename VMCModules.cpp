@@ -32,12 +32,6 @@ KeyboardModule::~KeyboardModule()
     
 }
 
-
-void KeyboardModule::setMapOut (const String newMapOut)
-{
-    
-}
-
 bool KeyboardModule::routeMidi (const String address, const MidiMessage message)
 {
     keyboardState.processNextMidiEvent(message);

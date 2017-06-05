@@ -105,11 +105,6 @@ GridModule::~GridModule()
 }
 
 
-void GridModule::setMapOut (const String newMapOut)
-{
-    mapOut = newMapOut;
-}
-
 bool GridModule::routeMidi (const String address, const MidiMessage message)
 
 {
@@ -268,7 +263,6 @@ void GridModule::mouseDown(const MouseEvent &event)
     if (event.mods.isRightButtonDown()) //trigger the note of the pressed button
     {
         CallOutBox::launchAsynchronously(new ConfigComponent(this), this->getScreenBounds(), nullptr);
-
     }
     else
     {

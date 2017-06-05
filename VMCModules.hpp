@@ -23,20 +23,44 @@
 #include "../JuceLibraryCode/JuceHeader.h"
 
 
+class AIMOInternalMessage
+{
+public:
+    AIMOInternalMessage() {}
+    ~AIMOInternalMessage() {}
+//    void addAddressToChain(String address) {addressChain.add(address);}
+//    String popNextAddress()
+//    {
+//        if (addressChain.size() > 0)
+//        {
+//            String retVal = addressChain[0];
+//            addressChain.remove(0);
+//            return retVal;
+//        }
+//        else
+//        {
+//            return "";
+//        }
+//    }
+    MidiMessage message;
+    StringArray addressChain;
+};
+
 // Base Class for modules in the virtual midi controller
 class VMCModule{
 public:
     virtual ~VMCModule() {};
-    virtual void setMapOut (const String newMapOut) = 0;
+    void setMapOut (const String newMapOut) {mapOut = newMapOut;};
     virtual bool routeMidi (const String address, const MidiMessage message) = 0;
     virtual void sendToAddress(const MidiMessage message)
     {
         jassertfalse; //bit hacky for now, nee to find a better way for midi processors to bounce asyc midi back up to parent controllers
     }
-    virtual String getAddress() {return address;}
-    virtual void setAddress(const String newAddress) { address = newAddress; }
+    String getAddress() {return address;}
+    void setAddress(const String newAddress) { address = newAddress; }
 private:
     String address;
+    String mapOut;
 };
 
 class VMC_OSCModule{
@@ -80,7 +104,6 @@ public:
     KeyboardModule();
     ~KeyboardModule();
     
-    void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
 
     
@@ -98,8 +121,6 @@ private:
     String outMapping = "";
 };
 
-
-
 class ControlModule : public VMCModule,
                       public Component
 {
@@ -107,7 +128,6 @@ public:
     ControlModule();
     ~ControlModule();
     
-    void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
     
     void paint(Graphics& g) override;

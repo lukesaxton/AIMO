@@ -242,7 +242,6 @@ public:
     GridModule(const int gridSize);
     ~GridModule();
     
-    void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
     
     const int getGridSize();

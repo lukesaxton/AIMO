@@ -239,12 +239,6 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
   
 }
 
-void KTMHandController::setMapOut (const String newMapOut)
-{
-    
-}
-
-
 bool KTMHandController::routeMidi (const String address, const MidiMessage message)
 {
     if (address == getAddress() + "key")

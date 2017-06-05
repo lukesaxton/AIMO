@@ -102,7 +102,6 @@ public:
             {
                 midiButton->setButtonMode(modeBox.getSelectedId());
             }
-
         }
         
     private:

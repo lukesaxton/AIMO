@@ -81,7 +81,6 @@ public:
     ~KTMHandController();
     void oscMessageReceived (const OSCMessage& message) override;
     
-    void setMapOut (const String newMapOut) override;
     bool routeMidi (const String address, const MidiMessage message) override;
     void sendToAddress(const MidiMessage message) override;
     
