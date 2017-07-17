@@ -90,7 +90,7 @@ GridModule::GridModule(const int gridSize)
     setScale(Scale::Major);
     buttons[0]->setButtonHighlight(true);
     
-    mapOut = "/KTM/key";
+    mapOut = "AIMO Out";
     setInterceptsMouseClicks(true, true);
     
     setInputType(InputType::AllKeys);

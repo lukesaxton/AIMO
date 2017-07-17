@@ -38,7 +38,7 @@ public:
     
 private:
     OwnedArray<RoutableMidiInput> midiInputs;
-    //MonomeInput monomeInput;
+    MonomeInput monomeInput;
     
     };
 

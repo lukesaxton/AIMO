@@ -51,10 +51,11 @@ MonomeInput::MonomeInput()
     
     for (int i = 0; i < 128; i++)
     {
-        setKeyMapping("/KTM/key", i);
+        setKeyMapping("/controllerOne/Grid/key", i);
     }
     
     monomeReceive.addListener(this);
+    
     
     discover();
     startTimer(5000);
@@ -152,7 +153,12 @@ void MonomeInput::oscMessageReceived (const OSCMessage& message)
             
             AIMORouter::Instance()->routeMidi(mappingString, midiMessage);
             
+            OSCMessage setLight(monomeData.prefix + "/grid/led/set");
+            setLight.addInt32(x);
+            setLight.addInt32(y);
+            setLight.addInt32(grid[x][y].s);
             
+            monomeSend.send(setLight);
 //            if (numberMode && keysPressed == 0)
 //            {
 //                displayNumber(((y*8)+x)+1);
