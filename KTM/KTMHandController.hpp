@@ -28,7 +28,7 @@
 
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
-#define MAX_SCENES 16
+#define MAX_SCENES 32
 
 /* 
     Class for communicating with the KTM Hand Controller
