@@ -50,7 +50,8 @@ class KTMHandController : public OSCReceiver::Listener<>,
                           public Timer,
                           public Component,
                           public VMCModule,
-                          public VMC_OSCModule
+                          public VMC_OSCModule,
+                          public Button::Listener
 {
 public:
     class ColouredBox : public Component
@@ -111,6 +112,8 @@ public:
     
     void refreshLooperState(const int forButton);
     
+    void buttonClicked(Button* button) override;
+    
 private:
     
     OSCReceiver controllerReceive;
@@ -125,7 +128,9 @@ private:
     
     OwnedArray<ColouredBox> ledDisplayBoxes[3];
     OwnedArray<MidiButtonModule> buttonModules[3];
-
+    TextButton sendClearButton;
+    Slider clearButtonChannel;
+    
     OwnedArray<Colour> sceneColours;
     
     int currentScene = 0;

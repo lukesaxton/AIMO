@@ -25,6 +25,7 @@
 #define KTM_CONTROLLER_SEND 9010
 
 
+
 KTMHandController::KTMHandController()
 {
     setInterceptsMouseClicks(false, true);
@@ -178,6 +179,14 @@ KTMHandController::KTMHandController()
     setOSCAddress("/KTMOSC/");
     AIMORouter::Instance()->addDestination(this);
     AIMORouter::Instance()->addOSCDestination(this);
+    
+    clearButtonChannel.setRange(1, 16, 1);
+    clearButtonChannel.setSliderStyle(Slider::IncDecButtons);
+    addAndMakeVisible(clearButtonChannel);
+    
+    sendClearButton.setButtonText("Map Clear");
+    sendClearButton.addListener(this);
+    addAndMakeVisible(sendClearButton);
 
 }
 
@@ -659,6 +668,8 @@ void KTMHandController::resized()
     ledDisplayBoxes[0][14]->setBounds(ledDisplayBoxes[0][13]->getBounds().translated(mainBox.getWidth()/15.0, 0));
     
     
+    sendClearButton.setBounds(mainBox.getX(), mainBox.getBottom()-30, 70, 30);
+    clearButtonChannel.setBounds(sendClearButton.getBounds().translated(80, 0));
 }
 
 
@@ -719,5 +730,13 @@ void KTMHandController::refreshLooperState(const int forButton)
             break;
         default:
             break;
+    }
+}
+
+void KTMHandController::buttonClicked(Button* button)
+{
+    if (button == &sendClearButton)
+    {
+        AIMORouter::Instance()->routeMidi("AIMO Out", MidiMessage::noteOn(clearButtonChannel.getValue(), 124, uint8(127)));
     }
 }
