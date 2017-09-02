@@ -25,6 +25,7 @@
 #include "VMCModules.hpp"
 #include "MidiButtonModule.hpp"
 #include "SequentialMidiButtonModule.hpp"
+#include "LEDDress.h"
 
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
@@ -120,6 +121,8 @@ private:
     
     OSCSender controllerSend;
     int stateGrid[NUM_KTM_BUTTONS];
+    
+    LEDDress dress;
     
     MemoryBlock rgbBlob;
     
