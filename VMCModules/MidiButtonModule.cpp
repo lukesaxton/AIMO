@@ -257,8 +257,6 @@ void MidiButtonModule::processMidi (MidiMessage* message)
                     {
                         *message = MidiMessage::noteOn(looperNumber, 124, uint8(127)); // clear
                     }
-                    
-                    
                 }
                 else
                 {
@@ -344,6 +342,17 @@ void MidiButtonModule::looperUndo()
     parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 125, uint8(127))); // undo
 }
 
+void MidiButtonModule::looperStop()
+{
+    parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 123, uint8(127)));
+    looperButtonState = Stop;
+}
+
+void MidiButtonModule::looperStart()
+{
+    parentModule.sendToAddress(MidiMessage::noteOn(looperNumber, 121, uint8(127)));
+    looperButtonState = Play;
+}
 
 void MidiButtonModule::timerCallback()
 {
@@ -368,19 +377,13 @@ void MidiButtonModule::incCurrentCC(bool inc)
 {
     if (inc)
     {
-        currentCC += 32;
-        if (currentCC > 127)
-        {
-            currentCC = 127;
-        }
+        ccInc = jlimit(0, 4, ccInc+1);
     }
     else
     {
-        currentCC -= 32;
-        if (currentCC < 0)
-        {
-            currentCC = 0;
-        }
+        ccInc = jlimit(0, 4, ccInc-1);
     }
+    
+    currentCC = incModeValues[ccInc];
 }
 

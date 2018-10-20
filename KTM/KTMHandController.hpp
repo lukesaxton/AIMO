@@ -30,6 +30,7 @@
 #define NUM_KTM_BUTTONS 12
 #define NUM_RGB_LEDS 15
 #define MAX_SCENES 32
+#define KTM_NUM_PAGES 4
 
 /* 
     Class for communicating with the KTM Hand Controller
@@ -126,11 +127,11 @@ private:
     
     MemoryBlock rgbBlob;
     
-    OwnedArray<Colour> ledColours[3];
+    OwnedArray<Colour> ledColours[KTM_NUM_PAGES];
     Colour sceneLEDColour;
     
-    OwnedArray<ColouredBox> ledDisplayBoxes[3];
-    OwnedArray<MidiButtonModule> buttonModules[3];
+    OwnedArray<ColouredBox> ledDisplayBoxes[KTM_NUM_PAGES];
+    OwnedArray<MidiButtonModule> buttonModules[KTM_NUM_PAGES];
     TextButton sendClearButton;
     Slider clearButtonChannel;
     
@@ -142,7 +143,6 @@ private:
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
         
-    
 };
 
 #endif /* KTMHandController_hpp */

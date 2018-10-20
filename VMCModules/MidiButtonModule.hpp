@@ -126,6 +126,8 @@ public:
     int getLooperButtonMode();
     void clearLooper();
     void looperUndo();
+    void looperStop();
+    void looperStart();
     void setLooperNumber(int newNumber) {looperNumber = newNumber;};
     
     uint32 getTimeSinceLastClick() {
@@ -155,6 +157,8 @@ private:
     Colour onColour, offColour;
     String mapOut;
     ButtonMode buttonMode = Standard;
+    const int incModeValues[5] {0, 31, 63, 95, 127};
+    int ccInc = 0;
 };
 
 #endif /* MidiButtonModule_hpp */
