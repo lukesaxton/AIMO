@@ -26,12 +26,20 @@
 
 
 
-KTMHandController::KTMHandController()
+KTMHandController::KTMHandController() : oscInputSocket(true)
 {
     setInterceptsMouseClicks(false, true);
     
     controllerReceive.addListener(this);
-    connect();
+    
+    if (oscInputSocket.bindToPort(KTM_CONTROLLER_RECEIVE, "192.168.0.10"))
+    {
+        Logger::writeToLog("OSC input socket bound");
+    }
+    else
+    {
+        Logger::writeToLog("OSC input socket failed to bind");
+    }
     
     for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
@@ -58,7 +66,7 @@ KTMHandController::KTMHandController()
         buttonModules[3].getLast()->addMouseListener(this, true);
         addAndMakeVisible(buttonModules[3].getLast());
         
-        setButtonLED(i, false);
+        //setButtonLED(i, false);
     }
 
     setKeyMapping("/KTM/Scene", 10);
@@ -202,10 +210,6 @@ KTMHandController::KTMHandController()
         sceneColours.add(new Colour(sceneColours.getLast()->withRotatedHue(0.63)));
     }
     
-    setSceneLEDs(Colours::blue);
-    
-    startTimer(50);
-    
     setAddress("/KTM/");
     setOSCAddress("/KTMOSC/");
     AIMORouter::Instance()->addDestination(this);
@@ -218,23 +222,30 @@ KTMHandController::KTMHandController()
     sendClearButton.setButtonText("Map Clear");
     sendClearButton.addListener(this);
     addAndMakeVisible(sendClearButton);
+    
+    //startTimer(INPUT_POLL, 50);
+    
+    connect();
+    startTimer(CONNECTION_CHECK, 500);
 
 }
 
 KTMHandController::~KTMHandController()
 {
-    
+    controllerReceive.disconnect();
+    oscInputSocket.shutdown();
 }
 
 bool KTMHandController::connect()
 {
-    if (controllerReceive.connect(KTM_CONTROLLER_RECEIVE) && controllerSend.connect("169.254.1.1", KTM_CONTROLLER_SEND))
+    if (controllerReceive.connectToSocket(oscInputSocket) && controllerSend.connect("192.168.0.103", KTM_CONTROLLER_SEND))
     {
-        DBG("Connected to KTMController ports");
+        Logger::writeToLog("Connected to KTMController ports");
         return true;
     }
     else
     {
+        Logger::writeToLog("Failed to connect KTMController ports");
         return false;
     }
     
@@ -244,7 +255,7 @@ bool KTMHandController::connect()
 
 void KTMHandController::oscMessageReceived (const OSCMessage& message)
 {
-    //DBG(message.getAddressPattern().toString() + " ARGS: " + String(message.size()));
+    Logger::writeToLog(message.getAddressPattern().toString() + " ARGS: " + String(message.size()));
     
     static String address;
     address = message.getAddressPattern().toString();
@@ -270,11 +281,22 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
                         routeMidi(getAddress()+"key", MidiMessage::noteOff(1, i));
                     }
                 }
-                
-                
             }
             curArg++;
         }
+        
+        if(!controllerConnected)
+        {
+            refreshColourLEDs();
+            for (int i = 0; i < 12; i++)
+            {
+                setButtonLED(i, buttonModules[currentPage][i]->getButtonState());
+            }
+            Logger::writeToLog("Hand controller connected - initialising!");
+            startTimer(INPUT_POLL, 50);
+            controllerConnected = true;
+        }
+        timeOfLastPing = Time::getMillisecondCounter();
     }
   
 }
@@ -527,11 +549,40 @@ bool KTMHandController::routeOSC (const OSCMessage message)
 
 
 
-void KTMHandController::timerCallback() //garbage collection for when a button release callback isn't received
+void KTMHandController::timerCallback (int timerID)//garbage collection for when a button release callback isn't received
 {
-    static OSCMessage poll("/inputs/digital/read");
+    if(timerID == INPUT_POLL)
+    {
+        static OSCMessage poll("/inputs/digital/read");
+        controllerSend.send(poll);
+    }
+    else if (timerID == CONNECTION_CHECK)
+    {
+        if (controllerConnected)
+        {
+            if (Time::getMillisecondCounter() - timeOfLastPing > 5000)
+            {
+                Logger::writeToLog("CONTROLLER DISCONNECTED - TIMED OUT");
+                controllerConnected = false;
+                stopTimer(INPUT_POLL);
+            }
+        }
+        else
+        {
+            
+            OSCMessage ipReset("/osc/remote/ip");
+            ipReset.addString("255.255.255.255");
+            controllerSend.send(ipReset);
+            
+            OSCMessage ipSet("/osc/remote/ip");
+            ipSet.addString("192.168.0.10");
+            controllerSend.send(ipSet);
+            
+            static OSCMessage poll("/inputs/digital/read");
+            controllerSend.send(poll);
+        }
+    }
     
-    controllerSend.send(poll);
 }
 
 void KTMHandController::setButtonLED(const int forButton, const bool state)
@@ -745,8 +796,6 @@ void KTMHandController::paint(Graphics& g)
 
 void KTMHandController::mouseDown (const MouseEvent& event)
 {
-    DBG("click");
-    
     if (event.mods.isRightButtonDown())
     {
         if (event.eventComponent != this)

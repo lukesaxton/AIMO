@@ -49,7 +49,7 @@
 
 class KTMHandController : public OSCReceiver::Listener<>,
                           public AIMOInput,
-                          public Timer,
+                          public MultiTimer,
                           public Component,
                           public VMCModule,
                           public VMC_OSCModule,
@@ -94,8 +94,7 @@ public:
     
     bool connect();
     
-    void timerCallback() override;
-    
+    void timerCallback (int timerID) override;
     void setButtonLED(const int forButton, const bool state);
     
     void setLEDColour(const int led, const uint8 r, const uint8 g, const uint8 b);
@@ -118,6 +117,12 @@ public:
     
 private:
     
+    enum timerIDs {
+        INPUT_POLL,
+        CONNECTION_CHECK
+    };
+    
+    DatagramSocket oscInputSocket;
     OSCReceiver controllerReceive;
     
     OSCSender controllerSend;
@@ -139,6 +144,10 @@ private:
     
     int currentScene = 0;
     int currentPage = 0;
+    
+    uint32 timeOfLastPing = 0;
+    
+    bool controllerConnected = false;
     
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
