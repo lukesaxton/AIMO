@@ -226,6 +226,7 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     //startTimer(INPUT_POLL, 50);
     
     connect();
+    Logger::writeToLog("Polling for KTM hand controller with IP : xxx.xxx.xxx.xxx");
     startTimer(CONNECTION_CHECK, 500);
 
 }
@@ -255,7 +256,7 @@ bool KTMHandController::connect()
 
 void KTMHandController::oscMessageReceived (const OSCMessage& message)
 {
-    Logger::writeToLog(message.getAddressPattern().toString() + " ARGS: " + String(message.size()));
+    //Logger::writeToLog(message.getAddressPattern().toString() + " ARGS: " + String(message.size()));
     
     static String address;
     address = message.getAddressPattern().toString();
@@ -287,14 +288,15 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
         
         if(!controllerConnected)
         {
+            Logger::writeToLog("Hand controller connected - initialising!");
             refreshColourLEDs();
             for (int i = 0; i < 12; i++)
             {
                 setButtonLED(i, buttonModules[currentPage][i]->getButtonState());
             }
-            Logger::writeToLog("Hand controller connected - initialising!");
             startTimer(INPUT_POLL, 50);
             controllerConnected = true;
+            Logger::writeToLog("Ready.");
         }
         timeOfLastPing = Time::getMillisecondCounter();
     }
@@ -560,7 +562,7 @@ void KTMHandController::timerCallback (int timerID)//garbage collection for when
     {
         if (controllerConnected)
         {
-            if (Time::getMillisecondCounter() - timeOfLastPing > 5000)
+            if (Time::getMillisecondCounter() - timeOfLastPing > 500)
             {
                 Logger::writeToLog("CONTROLLER DISCONNECTED - TIMED OUT");
                 controllerConnected = false;
@@ -570,16 +572,31 @@ void KTMHandController::timerCallback (int timerID)//garbage collection for when
         else
         {
             
-            OSCMessage ipReset("/osc/remote/ip");
-            ipReset.addString("255.255.255.255");
-            controllerSend.send(ipReset);
-            
-            OSCMessage ipSet("/osc/remote/ip");
-            ipSet.addString("192.168.0.10");
-            controllerSend.send(ipSet);
-            
-            static OSCMessage poll("/inputs/digital/read");
-            controllerSend.send(poll);
+            Array<IPAddress> addresses;
+            IPAddress::findAllAddresses(addresses);
+            bool pollSent = false;
+            for (int i = 0; i < addresses.size(); i++)
+            {
+                if (addresses[i].toString().contains("192.168."))
+                {
+                    OSCMessage ipReset("/osc/remote/ip");
+                    ipReset.addString("255.255.255.255");
+                    controllerSend.send(ipReset);
+                    
+                    OSCMessage ipSet("/osc/remote/ip");
+                    ipSet.addString(addresses[i].toString());
+                    controllerSend.send(ipSet);
+        
+                    static OSCMessage poll("/inputs/digital/read");
+                    controllerSend.send(poll);
+                    
+                    pollSent = true;
+                }
+            }
+            if (!pollSent)
+            {
+               Logger::writeToLog("Connection error: no network detected");
+            }
         }
     }
     
