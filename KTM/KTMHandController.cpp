@@ -238,15 +238,27 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     
     sendClearButton.setButtonText("Map Clear");
     sendClearButton.addListener(this);
+    sendClearButton.setConnectedEdges(15);
     addAndMakeVisible(sendClearButton);
     
     sceneLEDColour = Colours::blue;
+
+    sceneNumberLabel.setText("Scene: " + String(currentScene+1), dontSendNotification);
+    sceneNumberLabel.setJustificationType(Justification::centred);
+    addAndMakeVisible(sceneNumberLabel);
+    
+    controllerIpLabel.setText("Device Address:", dontSendNotification);
+    addAndMakeVisible(controllerIpLabel);
+    
+    controllerIpEditor.setMultiLine(false);
+    controllerIpEditor.setText("192.168.0.103");
+    controllerIpEditor.addListener(this);
+    addAndMakeVisible(controllerIpEditor);
+    
     //startTimer(INPUT_POLL, 50);
     if (ipSet)
     {
-        connect();
-        Logger::writeToLog("Polling for KTM hand controller with IP: xxx.xxx.xxx.xxx");
-        startTimer(CONNECTION_CHECK, 500);
+        pollForControllerAtAddress("192.168.0.103");
     }
     
     setPage(0);
@@ -258,16 +270,19 @@ KTMHandController::~KTMHandController()
     oscInputSocket.shutdown();
 }
 
-bool KTMHandController::connect()
+bool KTMHandController::connect(String sendAddress)
 {
-    if (controllerReceive.connectToSocket(oscInputSocket) && controllerSend.connect("192.168.0.103", KTM_CONTROLLER_SEND))
+    controllerSend.disconnect();
+    controllerReceive.disconnect();
+    
+    if (controllerReceive.connectToSocket(oscInputSocket) && controllerSend.connect(sendAddress, KTM_CONTROLLER_SEND))
     {
-        Logger::writeToLog("Connected to KTMController ports");
+        Logger::writeToLog("Connected to OSC send/receive sockets");
         return true;
     }
     else
     {
-        Logger::writeToLog("Failed to connect KTMController ports");
+        Logger::writeToLog("OSC send/receive sockets connection error");
         return false;
     }
     
@@ -710,6 +725,7 @@ void KTMHandController::setScene(const int newScene)
     {
         currentScene = newScene;
         setSceneLEDs(*sceneColours[newScene]);
+        sceneNumberLabel.setText("Scene: " + String(currentScene+1), dontSendNotification);
         
         AIMORouter::Instance()->routeMidi("AIMO Control", MidiMessage::noteOn(16, newScene, uint8(127)));
 
@@ -817,10 +833,15 @@ void KTMHandController::resized()
     ledDisplayBoxes[0][13]->setBounds(ledDisplayBoxes[0][12]->getBounds().translated(mainBox.getWidth()/15.0, 0));
     ledDisplayBoxes[0][14]->setBounds(ledDisplayBoxes[0][13]->getBounds().translated(mainBox.getWidth()/15.0, 0));
     
+    sceneNumberLabel.setBounds(ledDisplayBoxes[0][12]->getBounds().translated(0, ledDisplayBoxes[0][12]->getHeight()+5).withWidth(mainBox.getWidth()/5));
+    
     mainBox.setBottom(buttonModules[0][11]->getBottom()+10);
     
-    sendClearButton.setBounds(mainBox.getX(), mainBox.getBottom(), 100, 30);
+    sendClearButton.setBounds(mainBox.getX(), mainBox.getBottom()+10, 100, 30);
     clearButtonChannel.setBounds(sendClearButton.getBounds().translated(110, 0));
+    
+    controllerIpLabel.setBounds(sendClearButton.getBounds().translated(0, 40).withWidth(100));
+    controllerIpEditor.setBounds(controllerIpLabel.getBounds().translated(110, 0).withWidth(200));
 }
 
 
@@ -885,4 +906,25 @@ void KTMHandController::buttonClicked(Button* button)
     {
         AIMORouter::Instance()->routeMidi("AIMO Out", MidiMessage::noteOn(clearButtonChannel.getValue(), 124, uint8(127)));
     }
+}
+
+void KTMHandController::textEditorReturnKeyPressed (TextEditor& editor)
+{
+    if (&editor == &controllerIpEditor)
+    {
+        String newIp = editor.getText().retainCharacters("1234567890.");
+        //TODO: Better validation here
+        if (newIp != controllerIpString)
+        {
+            pollForControllerAtAddress(newIp);
+            controllerIpString = newIp;
+        }
+    }
+}
+
+void KTMHandController::pollForControllerAtAddress(String controllerAddress)
+{
+    connect(controllerAddress);
+    Logger::writeToLog("Polling for KTM hand controller with IP: " + controllerAddress);
+    startTimer(CONNECTION_CHECK, 500);
 }

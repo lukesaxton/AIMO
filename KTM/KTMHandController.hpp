@@ -53,7 +53,8 @@ class KTMHandController : public OSCReceiver::Listener<>,
                           public Component,
                           public VMCModule,
                           public VMC_OSCModule,
-                          public Button::Listener
+                          public Button::Listener,
+                          public TextEditor::Listener
 {
 public:
     class ColouredBox : public Component
@@ -92,7 +93,7 @@ public:
     bool routeOSC (const OSCMessage) override;
     
     
-    bool connect();
+    bool connect(String sendAddress);
     
     void timerCallback (int timerID) override;
     void setButtonLED(const int forButton, const bool state);
@@ -115,6 +116,9 @@ public:
     
     void buttonClicked(Button* button) override;
     
+    void textEditorReturnKeyPressed (TextEditor&) override;
+    
+    void pollForControllerAtAddress(String controllerAddress);
 private:
     
     enum timerIDs {
@@ -139,6 +143,9 @@ private:
     OwnedArray<MidiButtonModule> buttonModules[KTM_NUM_PAGES];
     TextButton sendClearButton;
     Slider clearButtonChannel;
+    Label sceneNumberLabel;
+    TextEditor controllerIpEditor;
+    Label controllerIpLabel;
     
     OwnedArray<Colour> sceneColours;
     
@@ -148,6 +155,7 @@ private:
     uint32 timeOfLastPing = 0;
     
     bool controllerConnected = false;
+    String controllerIpString = "192.168.0.103";
     
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
