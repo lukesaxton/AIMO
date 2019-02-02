@@ -32,14 +32,31 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     
     controllerReceive.addListener(this);
     
-    if (oscInputSocket.bindToPort(KTM_CONTROLLER_RECEIVE, "192.168.0.10"))
+    
+    Array<IPAddress> addresses;
+    IPAddress::findAllAddresses(addresses);
+    bool ipSet = false;
+    for (int i = 0; i < addresses.size(); i++)
     {
-        Logger::writeToLog("OSC input socket bound");
+        if (addresses[i].toString().contains("192.168."))
+        {
+            if (oscInputSocket.bindToPort(KTM_CONTROLLER_RECEIVE, addresses[i].toString()))
+            {
+                Logger::writeToLog("OSC input socket bound to IP: " + addresses[i].toString() + ":" + String(KTM_CONTROLLER_RECEIVE));
+            }
+            else
+            {
+                 Logger::writeToLog("OSC input socket failed to bind to IP: " + addresses[i].toString() + ":" + String(KTM_CONTROLLER_RECEIVE));
+            }
+            ipSet = true;
+        }
     }
-    else
+    if (!ipSet)
     {
-        Logger::writeToLog("OSC input socket failed to bind");
+        Logger::writeToLog("ERROR - this machine is not connected to a network");
     }
+    
+    
     
     for (int i = 0; i < NUM_KTM_BUTTONS; i++)
     {
@@ -223,11 +240,15 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     sendClearButton.addListener(this);
     addAndMakeVisible(sendClearButton);
     
+    sceneLEDColour = Colours::blue;
     //startTimer(INPUT_POLL, 50);
+    if (ipSet)
+    {
+        connect();
+        Logger::writeToLog("Polling for KTM hand controller with IP: xxx.xxx.xxx.xxx");
+        startTimer(CONNECTION_CHECK, 500);
+    }
     
-    connect();
-    Logger::writeToLog("Polling for KTM hand controller with IP : xxx.xxx.xxx.xxx");
-    startTimer(CONNECTION_CHECK, 500);
 
 }
 
