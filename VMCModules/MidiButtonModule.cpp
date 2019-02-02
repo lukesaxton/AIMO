@@ -40,7 +40,7 @@ MidiButtonModule::~MidiButtonModule()
 void MidiButtonModule::paint(Graphics& g)
 {
     float padding = getWidth()*0.0375;
-    g.setColour(Colours::darkgrey);
+    g.setColour(Colour(0xff323e44));
     g.drawRect(padding, padding, getWidth()-1.5*padding, getHeight() -1.5*padding);
     
     

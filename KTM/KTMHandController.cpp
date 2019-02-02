@@ -249,7 +249,7 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
         startTimer(CONNECTION_CHECK, 500);
     }
     
-
+    setPage(0);
 }
 
 KTMHandController::~KTMHandController()
@@ -784,14 +784,14 @@ void KTMHandController::resized()
     
     if (x<=y)
     {
-        mainBox.setBounds(0,0, x-10, x-10);
+        mainBox.setBounds(0,0, x, x);
     }
     else
     {
-        mainBox.setBounds(0,0, y-10, y-10);
+        mainBox.setBounds(0,0, y, y);
     }
     
-    mainBox.setCentre(x/2.0, y/2.0);
+   // mainBox.setCentre(x/2.0, y/2.0);
     
     buttonRows[0].setBounds(mainBox.getX(), mainBox.getY(), mainBox.getWidth()*0.2, mainBox.getWidth());
     for (int i = 1; i < 4; i++)
@@ -817,17 +817,18 @@ void KTMHandController::resized()
     ledDisplayBoxes[0][13]->setBounds(ledDisplayBoxes[0][12]->getBounds().translated(mainBox.getWidth()/15.0, 0));
     ledDisplayBoxes[0][14]->setBounds(ledDisplayBoxes[0][13]->getBounds().translated(mainBox.getWidth()/15.0, 0));
     
+    mainBox.setBottom(buttonModules[0][11]->getBottom()+10);
     
-    sendClearButton.setBounds(mainBox.getX(), mainBox.getBottom()-30, 70, 30);
-    clearButtonChannel.setBounds(sendClearButton.getBounds().translated(80, 0));
+    sendClearButton.setBounds(mainBox.getX(), mainBox.getBottom(), 100, 30);
+    clearButtonChannel.setBounds(sendClearButton.getBounds().translated(110, 0));
 }
 
 
 void KTMHandController::paint(Graphics& g)
 {
-    g.fillAll(Colours::darkslategrey);
+    g.fillAll(Colour(0xff263238));
     
-    g.setColour(Colours::darkgrey);
+    g.setColour(Colour(0xff323e44));
     g.fillRect(mainBox);
 }
 

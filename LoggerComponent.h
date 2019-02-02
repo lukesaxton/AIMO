@@ -43,11 +43,11 @@ public:
     
     void resized() override
     {
-        int w = getWidth();
-        int h = getHeight();
+        //int w = getWidth();
+        //int h = getHeight();
         
         log.setBounds(getLocalBounds());
-        bypassButton.setBounds(w-100, h-30, 100, 30);
+        //bypassButton.setBounds(w-100, h-30, 100, 30);
     }
     
     void logMessage (const String& message) override
