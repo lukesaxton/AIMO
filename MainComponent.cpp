@@ -18,7 +18,10 @@
 //==============================================================================
 MainContentComponent::MainContentComponent() : controllerOne("controllerOne")
 {
-    setSize (600, 480);
+    Logger::setCurrentLogger(&logger);
+    Logger::writeToLog("Hello");
+    
+    setSize (800, 400);
 
     // specify the number of input and output channels that we want to open
     ///setAudioChannels (2, 2);
@@ -26,6 +29,9 @@ MainContentComponent::MainContentComponent() : controllerOne("controllerOne")
     //addAndMakeVisible(inputManager);
     //addAndMakeVisible(controllerOne);
     addAndMakeVisible(kTMController);
+    addAndMakeVisible(logger);
+    
+    
 }
 
 MainContentComponent::~MainContentComponent()
@@ -79,7 +85,8 @@ void MainContentComponent::paint (Graphics& g)
 void MainContentComponent::resized()
 {
     //inputManager.setBounds(0, 0, 60, getHeight());
-    kTMController.setBounds(0, 0, (getWidth()), getHeight());
+    kTMController.setBounds(0, 0, (getWidth()/2), getHeight());
+    logger.setBounds(getLocalBounds().withLeft(kTMController.getRight()));
     //kTMController.setBounds(controllerOne.getBounds().translated((getWidth()*0.5)-30, 0));
 }
 

@@ -13,6 +13,7 @@
 #include "KTMHandController.hpp"
 #include "RoutableMidiInput.hpp"
 #include "AIMOInputManager.hpp"
+#include "LoggerComponent.h"
 
 //==============================================================================
 /*
@@ -43,6 +44,7 @@ public:
     
 private:
     //==============================================================================
+    LoggerComponent logger;
     
     VirtualMidiController controllerOne;
     KTMHandController kTMController;
