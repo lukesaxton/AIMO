@@ -19,7 +19,6 @@
 MainContentComponent::MainContentComponent() : controllerOne("controllerOne")
 {
     Logger::setCurrentLogger(&logger);
-    Logger::writeToLog("Hello");
     
     setSize (800, 400);
 

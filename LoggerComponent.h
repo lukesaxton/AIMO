@@ -27,6 +27,8 @@ public:
         bypassButton.setToggleState(true, dontSendNotification);
         bypassButton.setButtonText("Bypass");
         addAndMakeVisible(bypassButton);
+        
+        Logger::setCurrentLogger(this);
     }
     
     ~LoggerComponent()
