@@ -64,12 +64,13 @@ void SequentialMidiButtonModule::processMidi (MidiMessage* message)
 
 const int SequentialMidiButtonModule::getButtonMode()
 {
-    
+    return buttonMode;
 }
 
 bool SequentialMidiButtonModule::setButtonMode(const int newMode)
 {
-    
+    buttonMode = newMode;
+    return true;
 }
 
 void SequentialMidiButtonModule::setSequencePosition(const int newPosition)

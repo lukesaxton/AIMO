@@ -96,6 +96,7 @@ private:
     int sequencePosition = 0;
     Colour onColour, offColour;
     String mapOut;
+    int buttonMode = 0;
     
     ScopedPointer<GridModule> grid;
 };
