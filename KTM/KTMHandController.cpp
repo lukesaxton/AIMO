@@ -245,14 +245,13 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     addAndMakeVisible(controllerIpLabel);
     
     controllerIpEditor.setMultiLine(false);
-    controllerIpEditor.setText("192.168.0.103");
     controllerIpEditor.addListener(this);
     addAndMakeVisible(controllerIpEditor);
     
     //startTimer(INPUT_POLL, 50);
     if (ipSet)
     {
-        pollForControllerAtAddress("192.168.0.103");
+        pollForControllerAtAddress(controllerIpString);
     }
     
     setPage(0);
@@ -912,6 +911,8 @@ void KTMHandController::textEditorReturnKeyPressed (TextEditor& editor)
         {
             pollForControllerAtAddress(newIp);
             controllerIpString = newIp;
+            prefsXML->setAttribute("controller_ip", newIp);
+            prefsXML->writeToFile(preferencesFile, "");
         }
     }
 }
@@ -931,12 +932,13 @@ void KTMHandController::loadPreferencesFromFile()
     {
         Logger::writeToLog("XML Prefs not found - creating file");
         preferencesFile.create();
-        XmlElement defaultData("KTM_Scene_Data");
+        XmlElement defaultData("KTM_config");
         
+        defaultData.setAttribute("controller_ip", "192.168.0.103");
         
         for (int i = 0; i < MAX_SCENES; i++)
         {
-            defaultData.createNewChildElement("Scene_" + String(i));
+            defaultData.createNewChildElement("scene_" + String(i));
             XmlElement* thisScene = defaultData.getChildElement(i);
             thisScene->setAttribute("dress_command", "~/Scene" + String(i) + ".xml");
             
@@ -948,9 +950,9 @@ void KTMHandController::loadPreferencesFromFile()
             {
                 sceneColours.add(new Colour(sceneColours.getLast()->withRotatedHue(0.63)));
             }
-            thisScene->setAttribute("r", String(sceneColours.getLast()->getRed()));
-            thisScene->setAttribute("g", String(sceneColours.getLast()->getGreen()));
-            thisScene->setAttribute("b", String(sceneColours.getLast()->getBlue()));
+            thisScene->setAttribute("r", sceneColours.getLast()->getRed());
+            thisScene->setAttribute("g", sceneColours.getLast()->getGreen());
+            thisScene->setAttribute("b", sceneColours.getLast()->getBlue());
         }
         
         if(defaultData.writeToFile(preferencesFile, ""))
@@ -971,14 +973,18 @@ void KTMHandController::loadPreferencesFromFile()
         
         if (prefsXML != nullptr)
         {
+            controllerIpEditor.setText(prefsXML->getStringAttribute("controller_ip"));
+            //textEditorReturnKeyPressed(controllerIpEditor);
+            controllerIpString = prefsXML->getStringAttribute("controller_ip");
+            
             for (int i = 0; i < MAX_SCENES; i++)
             {
-                XmlElement* thisElement = prefsXML->getChildElement(i);
+                XmlElement* thisElement = prefsXML->getChildByName("scene_" + String(i));
                 dress.setSceneCommand(i, thisElement->getStringAttribute("dress_command"));
                 int r, g, b;
-                r = thisElement->getStringAttribute("r").getIntValue();
-                g = thisElement->getStringAttribute("g").getIntValue();
-                b = thisElement->getStringAttribute("b").getIntValue();
+                r = thisElement->getIntAttribute("r");
+                g = thisElement->getIntAttribute("g");
+                b = thisElement->getIntAttribute("b");
                 sceneColours.set(i, new Colour(r, g, b));
             }
         }
