@@ -119,6 +119,8 @@ public:
     void textEditorReturnKeyPressed (TextEditor&) override;
     
     void pollForControllerAtAddress(String controllerAddress);
+    
+    void loadPreferencesFromFile();
 private:
     
     enum timerIDs {
@@ -159,7 +161,9 @@ private:
     
     Rectangle<int> mainBox;
     Rectangle<int> buttonRows[4];
-        
+    
+    File preferencesFile;
+    ScopedPointer<XmlElement> prefsXML;
 };
 
 #endif /* KTMHandController_hpp */

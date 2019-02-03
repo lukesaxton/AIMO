@@ -32,6 +32,7 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     
     controllerReceive.addListener(this);
     
+    loadPreferencesFromFile();
     
     Array<IPAddress> addresses;
     IPAddress::findAllAddresses(addresses);
@@ -220,13 +221,6 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
         addAndMakeVisible(ledDisplayBoxes[0].getLast());
     }
     
-
-    sceneColours.add(new Colour(Colours::blue));
-    for (int i = 1; i < MAX_SCENES; i++)
-    {
-        sceneColours.add(new Colour(sceneColours.getLast()->withRotatedHue(0.63)));
-    }
-    
     setAddress("/KTM/");
     setOSCAddress("/KTMOSC/");
     AIMORouter::Instance()->addDestination(this);
@@ -241,7 +235,7 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     sendClearButton.setConnectedEdges(15);
     addAndMakeVisible(sendClearButton);
     
-    sceneLEDColour = Colours::blue;
+    sceneLEDColour = *sceneColours.getFirst();
 
     sceneNumberLabel.setText("Scene: " + String(currentScene+1), dontSendNotification);
     sceneNumberLabel.setJustificationType(Justification::centred);
@@ -927,4 +921,72 @@ void KTMHandController::pollForControllerAtAddress(String controllerAddress)
     connect(controllerAddress);
     Logger::writeToLog("Polling for KTM hand controller with IP: " + controllerAddress);
     startTimer(CONNECTION_CHECK, 500);
+}
+
+
+void KTMHandController::loadPreferencesFromFile()
+{
+    preferencesFile = File("./KTM Config.xml");
+    if (!preferencesFile.exists())
+    {
+        Logger::writeToLog("XML Prefs not found - creating file");
+        preferencesFile.create();
+        XmlElement defaultData("KTM_Scene_Data");
+        
+        
+        for (int i = 0; i < MAX_SCENES; i++)
+        {
+            defaultData.createNewChildElement("Scene_" + String(i));
+            XmlElement* thisScene = defaultData.getChildElement(i);
+            thisScene->setAttribute("dress_command", "~/Scene" + String(i) + ".xml");
+            
+            if (i == 0)
+            {
+                sceneColours.add(new Colour(Colours::blue));
+            }
+            else
+            {
+                sceneColours.add(new Colour(sceneColours.getLast()->withRotatedHue(0.63)));
+            }
+            thisScene->setAttribute("r", String(sceneColours.getLast()->getRed()));
+            thisScene->setAttribute("g", String(sceneColours.getLast()->getGreen()));
+            thisScene->setAttribute("b", String(sceneColours.getLast()->getBlue()));
+        }
+        
+        if(defaultData.writeToFile(preferencesFile, ""))
+        {
+            Logger::writeToLog("XML prefs file created successfully");
+        }
+        else
+        {
+            Logger::writeToLog("EROOR - XML prefs file not created");
+        }
+    }
+    else
+    {
+        Logger::writeToLog("XML prefs file found - loading");
+        
+        XmlDocument prefsDoc(preferencesFile);
+        prefsXML = prefsDoc.getDocumentElement();
+        
+        if (prefsXML != nullptr)
+        {
+            for (int i = 0; i < MAX_SCENES; i++)
+            {
+                XmlElement* thisElement = prefsXML->getChildElement(i);
+                dress.setSceneCommand(i, thisElement->getStringAttribute("dress_command"));
+                int r, g, b;
+                r = thisElement->getStringAttribute("r").getIntValue();
+                g = thisElement->getStringAttribute("g").getIntValue();
+                b = thisElement->getStringAttribute("b").getIntValue();
+                sceneColours.set(i, new Colour(r, g, b));
+            }
+        }
+        else
+        {
+            Logger::writeToLog("ERROR - Bad data in prefs file");
+        }
+        
+        
+    }
 }

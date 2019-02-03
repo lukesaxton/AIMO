@@ -14,16 +14,9 @@
 LEDDress::LEDDress()
 {
     dressOutput.connect("192.168.0.1", 5567);
+    //changeScene(4);
     
-    sceneNames.add("~/Beat.xml");
-    sceneNames.add("~/Sea.xml");
-    sceneNames.add("~/Feet.xml");
-    sceneNames.add("~/DoubleBass.xml");
-    sceneNames.add("~/Money.xml");
-    sceneNames.add("~/Samurai.xml");
-    sceneNames.add("~/Tabla.xml");
     
-    changeScene(4);
 }
 LEDDress::~LEDDress()
 {
@@ -42,10 +35,15 @@ void LEDDress::resized()
 
 void LEDDress::changeScene(int sceneNumber)
 {
-    if (sceneNumber < sceneNames.size())
+    if (sceneNumber < sceneCommands.size())
     {
         OSCMessage outMessage(OSCAddressPattern("/scene"));
-        outMessage.addString(sceneNames[sceneNumber]);
+        outMessage.addString(sceneCommands[sceneNumber]);
         dressOutput.send(outMessage);
     }
+}
+
+void LEDDress::setSceneCommand(int sceneNumber, String command)
+{
+    sceneCommands.set(sceneNumber, command);
 }

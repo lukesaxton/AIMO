@@ -22,8 +22,10 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void changeScene(int sceneNumber);
-    
+    void setSceneCommand(int sceneNumber, String command);
 private:
     OSCSender dressOutput;
-    StringArray sceneNames;
+    StringArray sceneCommands;
+    
+    File preferencesFile;
 };
