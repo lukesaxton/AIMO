@@ -259,6 +259,7 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
 
 KTMHandController::~KTMHandController()
 {
+    Logger::writeToLog("KTM controller closing connections...");
     controllerReceive.disconnect();
     oscInputSocket.shutdown();
 }
@@ -987,6 +988,7 @@ void KTMHandController::loadPreferencesFromFile()
                 b = thisElement->getIntAttribute("b");
                 sceneColours.set(i, new Colour(r, g, b));
             }
+            Logger::writeToLog("XML prefs loaded");
         }
         else
         {
