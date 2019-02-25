@@ -928,11 +928,11 @@ void KTMHandController::pollForControllerAtAddress(String controllerAddress)
 
 void KTMHandController::loadPreferencesFromFile()
 {
-    preferencesFile = File("./KTM Config.xml");
+    preferencesFile = File(File::getSpecialLocation(File::currentApplicationFile).getFullPathName() + "/KTM Config.xml");
     if (!preferencesFile.exists())
     {
         Logger::writeToLog("XML Prefs not found - creating file");
-        preferencesFile.create();
+        Logger::writeToLog("Create Prefs file returned: " + preferencesFile.create().getErrorMessage());
         XmlElement defaultData("KTM_config");
         
         defaultData.setAttribute("controller_ip", "192.168.0.103");
