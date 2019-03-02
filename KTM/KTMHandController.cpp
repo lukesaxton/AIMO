@@ -255,6 +255,7 @@ KTMHandController::KTMHandController() : oscInputSocket(true)
     }
     
     setPage(0);
+    //setScene(0);
 }
 
 KTMHandController::~KTMHandController()
@@ -722,6 +723,7 @@ void KTMHandController::setScene(const int newScene)
         sceneNumberLabel.setText("Scene: " + String(currentScene+1), dontSendNotification);
         
         AIMORouter::Instance()->routeMidi("AIMO Control", MidiMessage::noteOn(16, newScene, uint8(127)));
+        dress.changeScene(newScene);
 
     }
     else if (newScene == -1)
@@ -936,12 +938,16 @@ void KTMHandController::loadPreferencesFromFile()
         XmlElement defaultData("KTM_config");
         
         defaultData.setAttribute("controller_ip", "192.168.0.103");
+        defaultData.setAttribute("dress_ip", "192.168.0.101");
+        defaultData.setAttribute("dress_namespace", String("/0"));
         
         for (int i = 0; i < MAX_SCENES; i++)
         {
             defaultData.createNewChildElement("scene_" + String(i));
             XmlElement* thisScene = defaultData.getChildElement(i);
-            thisScene->setAttribute("dress_command", "~/Scene" + String(i) + ".xml");
+            thisScene->setAttribute("dress_command", "/scene");
+            thisScene->setAttribute("maj", String(i));
+            thisScene->setAttribute("min", String(0));
             
             if (i == 0)
             {
@@ -959,10 +965,11 @@ void KTMHandController::loadPreferencesFromFile()
         if(defaultData.writeToFile(preferencesFile, ""))
         {
             Logger::writeToLog("XML prefs file created successfully");
+            loadPreferencesFromFile();
         }
         else
         {
-            Logger::writeToLog("EROOR - XML prefs file not created");
+            Logger::writeToLog("ERROR - XML prefs file not created");
         }
     }
     else
@@ -977,11 +984,17 @@ void KTMHandController::loadPreferencesFromFile()
             controllerIpEditor.setText(prefsXML->getStringAttribute("controller_ip"));
             //textEditorReturnKeyPressed(controllerIpEditor);
             controllerIpString = prefsXML->getStringAttribute("controller_ip");
+            dress.setDressIP(prefsXML->getStringAttribute("dress_ip"));
+            String dressNamespace = prefsXML->getStringAttribute("dress_namespace");
             
             for (int i = 0; i < MAX_SCENES; i++)
             {
                 XmlElement* thisElement = prefsXML->getChildByName("scene_" + String(i));
-                dress.setSceneCommand(i, thisElement->getStringAttribute("dress_command"));
+                int sceneMaj, sceneMin;
+                sceneMaj = thisElement->getIntAttribute("maj");
+                sceneMin = thisElement->getIntAttribute("min");
+                dress.setSceneCommand(i, dressNamespace + thisElement->getStringAttribute("dress_command"), sceneMaj, sceneMin);
+                
                 int r, g, b;
                 r = thisElement->getIntAttribute("r");
                 g = thisElement->getIntAttribute("g");

@@ -13,7 +13,7 @@
 
 LEDDress::LEDDress()
 {
-    dressOutput.connect("192.168.0.1", 5567);
+    //dressOutput.connect("192.168.0.1", 5567);
     //changeScene(4);
     
     
@@ -35,15 +35,38 @@ void LEDDress::resized()
 
 void LEDDress::changeScene(int sceneNumber)
 {
-    if (sceneNumber < sceneCommands.size())
+    if (connected)
     {
-        OSCMessage outMessage(OSCAddressPattern("/scene"));
-        outMessage.addString(sceneCommands[sceneNumber]);
-        dressOutput.send(outMessage);
+        if (sceneNumber < sceneCommands.size())
+        {
+            OSCMessage outMessage(sceneCommands[sceneNumber].address);
+            outMessage.addInt32(sceneCommands[sceneNumber].sceneMaj);
+            outMessage.addInt32(sceneCommands[sceneNumber].sceneMin);
+            dressOutput.send(outMessage);
+        }
+    }
+   
+}
+
+void LEDDress::setDressIP(String dressIP)
+{
+    connected = dressOutput.connect(dressIP, 5567);
+    if (connected)
+    {
+        Logger::writeToLog("LED dress configured @ " + dressIP + ":" + String(LED_DRESS_PORT));
+    }
+    else
+    {
+        Logger::writeToLog("ERROR - LED dress config failed @ " + dressIP + ":" + String(LED_DRESS_PORT));
     }
 }
 
-void LEDDress::setSceneCommand(int sceneNumber, String command)
+void LEDDress::setSceneCommand(int sceneNumber, String address, int arg1, int arg2)
 {
-    sceneCommands.set(sceneNumber, command);
+    SceneCommand dummyCommand;
+    dummyCommand.address = address;
+    dummyCommand.sceneMaj = arg1;
+    dummyCommand.sceneMin = arg2;
+
+    sceneCommands.set(sceneNumber, dummyCommand);
 }

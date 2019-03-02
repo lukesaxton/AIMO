@@ -22,10 +22,19 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void changeScene(int sceneNumber);
-    void setSceneCommand(int sceneNumber, String command);
+    void setDressIP(String dressIP);
+    void setSceneCommand(int sceneNumber, String address, int arg1, int arg2);
 private:
-    OSCSender dressOutput;
-    StringArray sceneCommands;
+    typedef struct
+    {
+        String address;
+        int sceneMaj;
+        int sceneMin;
+    } SceneCommand;
     
+    OSCSender dressOutput;
+    Array<SceneCommand> sceneCommands;
+    
+    bool connected;
     File preferencesFile;
 };
