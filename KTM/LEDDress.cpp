@@ -48,16 +48,16 @@ void LEDDress::changeScene(int sceneNumber)
    
 }
 
-void LEDDress::setDressIP(String dressIP)
+void LEDDress::setDressIP(String dressIP, int port)
 {
-    connected = dressOutput.connect(dressIP, 5567);
+    connected = dressOutput.connect(dressIP, port);
     if (connected)
     {
-        Logger::writeToLog("LED dress configured @ " + dressIP + ":" + String(LED_DRESS_PORT));
+        Logger::writeToLog("LED dress configured @ " + dressIP + ":" + String(port));
     }
     else
     {
-        Logger::writeToLog("ERROR - LED dress config failed @ " + dressIP + ":" + String(LED_DRESS_PORT));
+        Logger::writeToLog("ERROR - LED dress config failed @ " + dressIP + ":" + String(port));
     }
 }
 

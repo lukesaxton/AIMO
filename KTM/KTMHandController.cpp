@@ -939,6 +939,7 @@ void KTMHandController::loadPreferencesFromFile()
         
         defaultData.setAttribute("controller_ip", "192.168.0.103");
         defaultData.setAttribute("dress_ip", "192.168.0.101");
+        defaultData.setAttribute("dress_port", "5567");
         defaultData.setAttribute("dress_namespace", String("/0"));
         
         for (int i = 0; i < MAX_SCENES; i++)
@@ -984,7 +985,7 @@ void KTMHandController::loadPreferencesFromFile()
             controllerIpEditor.setText(prefsXML->getStringAttribute("controller_ip"));
             //textEditorReturnKeyPressed(controllerIpEditor);
             controllerIpString = prefsXML->getStringAttribute("controller_ip");
-            dress.setDressIP(prefsXML->getStringAttribute("dress_ip"));
+            dress.setDressIP(prefsXML->getStringAttribute("dress_ip"), prefsXML->getIntAttribute("dress_port"));
             String dressNamespace = prefsXML->getStringAttribute("dress_namespace");
             
             for (int i = 0; i < MAX_SCENES; i++)

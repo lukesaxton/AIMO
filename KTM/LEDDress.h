@@ -22,7 +22,7 @@ public:
     void paint (Graphics& g) override;
     void resized() override;
     void changeScene(int sceneNumber);
-    void setDressIP(String dressIP);
+    void setDressIP(String dressIP, int port);
     void setSceneCommand(int sceneNumber, String address, int arg1, int arg2);
 private:
     typedef struct
