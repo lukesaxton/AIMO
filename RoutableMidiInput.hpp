@@ -87,7 +87,7 @@ public:
 private:
     
     
-    ScopedPointer<MidiInput> input = nullptr;
+    std::unique_ptr<MidiInput> input = nullptr;
     StringArray deviceList;
     String deviceToConnect;
     bool connected = false;

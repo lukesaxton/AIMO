@@ -90,8 +90,9 @@ void MonomeInput::oscMessageReceived (const OSCMessage& message)
         {
             //monomeData.
             stopTimer();
+            OSCMessage recvMsg = message;
             
-            OSCArgument* curArg = message.begin();
+            OSCArgument* curArg = recvMsg.begin();
             MonomeInput::MonomeData data;
             
             data.deviceName = curArg->getString();
@@ -115,7 +116,9 @@ void MonomeInput::oscMessageReceived (const OSCMessage& message)
     {
         
         //stopIdle();
-        OSCArgument* cur = message.begin();
+        OSCMessage recvMsg = message;
+        
+        OSCArgument* cur = recvMsg.begin();
         
         OSCArgument xArg(*cur);
         OSCArgument yArg(*++cur);

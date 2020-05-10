@@ -163,7 +163,7 @@ private:
     Rectangle<int> buttonRows[4];
     
     File preferencesFile;
-    ScopedPointer<XmlElement> prefsXML;
+    std::unique_ptr<XmlElement> prefsXML;
 };
 
 #endif /* KTMHandController_hpp */

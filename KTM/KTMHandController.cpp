@@ -295,7 +295,9 @@ void KTMHandController::oscMessageReceived (const OSCMessage& message)
     
     if (address == "/inputs/digital")
     {
-        OSCArgument* curArg = message.begin();;
+        OSCMessage recvMsg = message;
+
+        OSCArgument* curArg = recvMsg.begin();;
         for (int i = 0; i < NUM_KTM_BUTTONS; i++)
         {
             if (curArg->isInt32())
@@ -553,7 +555,9 @@ bool KTMHandController::routeOSC (const OSCMessage message)
         static int args[2];
         bool valid = true;
         
-        OSCArgument* curArg = message.begin();
+        OSCMessage recvMsg = message;
+
+        OSCArgument* curArg = recvMsg.begin();
         
         for (int i = 0; i < 2; i++)
         {

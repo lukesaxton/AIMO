@@ -100,7 +100,9 @@ void Monome::oscMessageReceived (const OSCMessage& message)
     {
 
         //stopIdle();
-        OSCArgument* cur = message.begin();
+        OSCMessage recvMsg = message;
+        
+        OSCArgument* cur = recvMsg.begin();
         
         OSCArgument xArg(*cur);
         OSCArgument yArg(*++cur);

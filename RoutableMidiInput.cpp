@@ -59,7 +59,7 @@ void RoutableMidiInput::refreshDeviceList()
 
 void RoutableMidiInput::handleIncomingMidiMessage (MidiInput* source, const MidiMessage& message)
 {
-    if (source == input)
+    if (source == input.get())
     {
         //DBG("Midi Input Message Received");
         if (!message.isMidiClock())

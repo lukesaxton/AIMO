@@ -37,7 +37,7 @@ public:
     const String getDeviceName();
     
 private:
-    ScopedPointer<MidiOutput> output;
+    std::unique_ptr<MidiOutput> output;
 };
 
 #endif /* RoutableMidiOutput_hpp */
